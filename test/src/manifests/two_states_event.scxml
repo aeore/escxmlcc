@@ -1,0 +1,6 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=340 h=160  -->
+ <state id="init"><!--   node-size-and-position x=70 y=70 w=40 h=40  -->
+  <transition event="e" target="Node"><!--   edge-path [Node]  pointx=0 pointy=14 offsetx=0 offsety=-3  --></transition>
+ </state>
+ <state id="Node"><!--   node-size-and-position x=180 y=70 w=90 h=40  --></state>
+</scxml>

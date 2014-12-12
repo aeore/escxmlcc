@@ -1,0 +1,36 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=820 h=520  -->
+ <datamodel>int y;</datamodel>
+ <handlers>
+  <method name="reset">
+   <arg name="value" type="int"></arg>
+   <arg name="a" type="int"></arg>
+  </method>
+  <method name="foo"></method>
+  <method name="one"></method>
+  <method name="two"></method>
+  <method name="change"></method>
+ </handlers>
+ <state id="init"><!--   node-size-and-position x=80 y=80 w=40 h=40  -->
+  <transition event="q" target="A"><!--   edge-path [A]  pointx=0 pointy=10 offsetx=5 offsety=0  --></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=450 y=80 w=120 h=40  -->
+  <transition cond="y == 10" target="B">foo()<!--   edge-path [B]  x=440 y=120 x=440 y=200 x=430 y=210 x=330 y=210 x=320 y=220 pointx=0 pointy=-10 offsetx=-45 offsety=0  --></transition>
+  <transition cond="y == 5" event="e" target="C">one()<!--   edge-path [C]  pointx=0 pointy=10 offsetx=0 offsety=0  --></transition>
+  <transition cond="y &lt; 5" event="u" target="B">foo()<!--   edge-path [B]  x=510 y=250 x=500 y=260 pointx=0 pointy=-10 offsetx=-54 offsety=-1  --></transition>
+  <transition cond="y == 8" event="e" target="C">two()<!--   edge-path [C]  x=560 y=150 x=710 y=150 pointx=0 pointy=10 offsetx=-4 offsety=0  --></transition>
+ </state>
+ <state id="B"><!--   node-size-and-position x=280 y=240 w=80 h=40  -->
+  <transition cond="y &gt; 5" event="w" target="Cluster">reset( m.y + 1, 1 )<!--   edge-path [Cluster]  x=210 y=260 x=200 y=270 pointx=0 pointy=-10 offsetx=0 offsety=37  --></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=710 y=80 w=80 h=40  -->
+  <transition target="A">change()<!--   edge-path [A]  x=700 y=50 x=560 y=50  --></transition>
+ </state>
+ <state id="Cluster" initial="i"><!--   node-size-and-position x=70 y=360 w=260 h=130  -->
+  <transition target="E"></transition>
+  <state id="i"><!--   node-size-and-position x=30 y=50 w=40 h=40  -->
+   <transition target="D"></transition>
+  </state>
+  <state id="D"><!--   node-size-and-position x=120 y=50 w=100 h=40  --></state>
+ </state>
+ <state id="E"><!--   node-size-and-position x=450 y=410 w=70 h=30  --></state>
+</scxml>

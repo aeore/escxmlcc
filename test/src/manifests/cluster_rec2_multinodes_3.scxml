@@ -1,0 +1,21 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=410 h=420  -->
+ <state id="init"><!--   node-size-and-position x=70 y=50 w=30 h=30  -->
+  <transition event="q" target="A"><!--   edge-path [A]  pointx=0 pointy=10 offsetx=0 offsety=-1  --></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=160 y=50 w=90 h=30  -->
+  <transition target="Cluster"></transition>
+ </state>
+ <state id="Cluster" initial="B"><!--   node-size-and-position x=20 y=120 w=370 h=180  -->
+  <transition event="r" target="F"><!--   edge-path [F]  pointx=0 pointy=5 offsetx=0 offsety=0  --></transition>
+  <state id="B"><!--   node-size-and-position x=20 y=80 w=30 h=30  -->
+   <transition target="Cluster_2"></transition>
+  </state>
+  <state id="Cluster_2" initial="i"><!--   node-size-and-position x=110 y=40 w=230 h=110  -->
+   <state id="i"><!--   node-size-and-position x=30 y=50 w=30 h=30  -->
+    <transition event="u" target="R"><!--   edge-path [R]  pointx=0 pointy=-19 offsetx=-7 offsety=-6  --></transition>
+   </state>
+   <state id="R"><!--   node-size-and-position x=120 y=50 w=80 h=30  --></state>
+  </state>
+ </state>
+ <state id="F"><!--   node-size-and-position x=160 y=360 w=90 h=30  --></state>
+</scxml>

@@ -1,0 +1,15 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=460 h=150  -->
+ <datamodel>int value;
+int data;
+std::string str;</datamodel>
+ <cpp-include>
+
+&lt;string&gt;;
+ </cpp-include>
+ <state id="A"><!--   node-size-and-position x=350 y=40 w=80 h=50  -->
+  <transition target="init"><!--   edge-path [init]  x=390 y=110 x=380 y=120 x=50 y=120 x=40 y=110  --></transition>
+ </state>
+ <state id="init"><!--   node-size-and-position x=20 y=50 w=40 h=30  -->
+  <transition cond="(++value == 9 &amp;&amp; --data &gt; 5) || str == &quot;SET&quot;" event="q" target="A"><!--   edge-path [A]  pointx=0 pointy=5 offsetx=0 offsety=0  --></transition>
+ </state>
+</scxml>

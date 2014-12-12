@@ -1,0 +1,20 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=330 h=230  -->
+ <state id="init"><!--   node-size-and-position x=150 y=110 w=40 h=30  -->
+  <transition event="q" target="1"><!--   edge-path [1]  pointx=0 pointy=-6 offsetx=12 offsety=7  --></transition>
+  <transition event="r" target="4"><!--   edge-path [4]  pointx=0 pointy=6 offsetx=12 offsety=-7  --></transition>
+  <transition event="w" target="2"><!--   edge-path [2]  pointx=0 pointy=4 offsetx=-9 offsety=6  --></transition>
+  <transition event="e" target="3"><!--   edge-path [3]  pointx=0 pointy=-4 offsetx=-9 offsety=-6  --></transition>
+ </state>
+ <state id="1"><!--   node-size-and-position x=30 y=50 w=80 h=30  -->
+  <transition event="z" target="2"><!--   edge-path [2]  pointx=0 pointy=5 offsetx=-5 offsety=0  --></transition>
+ </state>
+ <state id="2"><!--   node-size-and-position x=220 y=50 w=80 h=30  -->
+  <transition event="z" target="3"><!--   edge-path [3]  pointx=0 pointy=10 offsetx=0 offsety=-5  --></transition>
+ </state>
+ <state id="3"><!--   node-size-and-position x=220 y=170 w=80 h=30  -->
+  <transition event="z" target="4"><!--   edge-path [4]  pointx=0 pointy=-5 offsetx=5 offsety=0  --></transition>
+ </state>
+ <state id="4"><!--   node-size-and-position x=30 y=170 w=80 h=30  -->
+  <transition event="z" target="1"><!--   edge-path [1]  pointx=0 pointy=-10 offsetx=0 offsety=5  --></transition>
+ </state>
+</scxml>

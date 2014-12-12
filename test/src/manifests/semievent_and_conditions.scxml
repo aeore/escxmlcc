@@ -1,0 +1,17 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=670 h=370  -->
+ <datamodel>int index;</datamodel>
+ <state id="init"><!--   node-size-and-position x=350 y=50 w=75 h=75  -->
+  <transition cond="index &lt; 10" event="q" target="A"><!--   edge-path [A]  pointx=0 pointy=-37 offsetx=-14 offsety=10  --></transition>
+  <transition cond="index &gt; 10" event="q" target="B"><!--   edge-path [B]  pointx=0 pointy=38 offsetx=13 offsety=11  --></transition>
+  <transition cond="index == 10" event="q" target="C"></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=200 y=160 w=75 h=75  -->
+  <transition target="init"><!--   edge-path [init]  x=330 y=200  --></transition>
+ </state>
+ <state id="B"><!--   node-size-and-position x=490 y=160 w=75 h=75  -->
+  <transition target="init"><!--   edge-path [init]  x=440 y=190  --></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=350 y=260 w=75 h=75  -->
+  <transition target="init"><!--   edge-path [init]  x=630 y=300 x=630 y=90  --></transition>
+ </state>
+</scxml>

@@ -1,0 +1,11 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=841 h=716  -->
+ <datamodel>int value;</datamodel>
+ <state id="init"><!--   node-size-and-position x=280 y=220 w=75 h=75  -->
+  <transition target="C"></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=280 y=340 w=75 h=75  -->
+  <transition cond="value &lt; 5"><!--   edge-path [C]  pointx=0 pointy=0 offsetx=45 offsety=-17  --></transition>
+  <transition target="F"></transition>
+ </state>
+ <state id="F"><!--   node-size-and-position x=280 y=480 w=75 h=75  --></state>
+</scxml>

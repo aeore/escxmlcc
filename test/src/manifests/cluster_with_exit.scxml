@@ -1,0 +1,13 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=770 h=310  -->
+ <state id="init"><!--   node-size-and-position x=170 y=90 w=30 h=40  -->
+  <transition target="Cluster"></transition>
+ </state>
+ <state id="Cluster" initial="A"><!--   node-size-and-position x=260 y=40 w=260 h=140  -->
+  <transition target="C"></transition>
+  <state id="A"><!--   node-size-and-position x=110 y=40 w=40 h=20  -->
+   <transition target="B"></transition>
+  </state>
+  <state id="B"><!--   node-size-and-position x=90 y=80 w=80 h=30  --></state>
+ </state>
+ <state id="C"><!--   node-size-and-position x=350 y=220 w=80 h=30  --></state>
+</scxml>

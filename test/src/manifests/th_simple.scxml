@@ -1,0 +1,9 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=390 h=130  -->
+ <handlers>
+  <method name="foo"></method>
+ </handlers>
+ <state id="init"><!--   node-size-and-position x=80 y=50 w=30 h=40  -->
+  <transition target="A">foo()<!--   edge-path [A]  pointx=0 pointy=10 offsetx=0 offsety=0  --></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=230 y=50 w=90 h=40  --></state>
+</scxml>

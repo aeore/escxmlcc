@@ -1,0 +1,19 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=340 h=280  -->
+ <state id="init"><!--   node-size-and-position x=30 y=40 w=60 h=30  -->
+  <transition target="A"></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=20 y=110 w=80 h=30  -->
+  <transition event="ab" target="B"><!--   edge-path [B]  pointx=0 pointy=18 offsetx=-2 offsety=1  --></transition>
+ </state>
+ <state id="B"><!--   node-size-and-position x=240 y=110 w=80 h=30  -->
+  <transition event="bc" target="C"><!--   edge-path [C]  pointx=0 pointy=13 offsetx=0 offsety=3  --></transition>
+  <transition event="bd" target="D"><!--   edge-path [D]  pointx=0 pointy=-15 offsetx=45 offsety=-24  --></transition>
+ </state>
+ <state id="D"><!--   node-size-and-position x=20 y=220 w=80 h=30  -->
+  <transition event="da" target="A"></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=240 y=220 w=80 h=30  -->
+  <transition event="cd" target="D"><!--   edge-path [D]  pointx=0 pointy=23 offsetx=-2 offsety=0  --></transition>
+  <transition event="ca" target="A"><!--   edge-path [A]  pointx=0 pointy=11 offsetx=43 offsety=23  --></transition>
+ </state>
+</scxml>

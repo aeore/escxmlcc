@@ -1,0 +1,31 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=700 h=370  -->
+ <state id="init"><!--   node-size-and-position x=50 y=70 w=40 h=20  -->
+  <transition event="q" target="A"><!--   edge-path [A]  pointx=0 pointy=10 offsetx=0 offsety=-1  --></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=30 y=140 w=80 h=30  -->
+  <transition target="Cluster"></transition>
+ </state>
+ <state id="Cluster" initial="B"><!--   node-size-and-position x=160 y=40 w=470 h=230  -->
+  <transition event="r" target="F"><!--   edge-path [F]  pointx=0 pointy=15 offsetx=0 offsety=5  --></transition>
+  <transition event="d" target="Cluster"><!--   edge-path [Cluster]  pointx=0 pointy=20 offsetx=0 offsety=5  --></transition>
+  <state id="B"><!--   node-size-and-position x=30 y=110 w=30 h=30  -->
+   <transition target="Cluster_2"><!--   edge-path [Cluster_2]   --></transition>
+  </state>
+  <state id="Cluster_2" initial="i"><!--   node-size-and-position x=90 y=80 w=240 h=90  -->
+   <transition target="C"></transition>
+   <state id="i"><!--   node-size-and-position x=30 y=40 w=30 h=30  -->
+    <transition event="u" target="R"><!--   edge-path [R]  pointx=0 pointy=-19 offsetx=-7 offsety=-6  --></transition>
+   </state>
+   <state id="R"><!--   node-size-and-position x=120 y=40 w=80 h=30  --></state>
+  </state>
+  <state id="C"><!--   node-size-and-position x=370 y=110 w=80 h=30  -->
+   <transition event="j" target="Cluster_2"><!--   edge-path [Cluster_2]  x=410 y=50 x=400 y=40 x=220 y=40 x=210 y=50 pointx=0 pointy=-23 offsetx=4 offsety=39  --></transition>
+   <transition event="k" target="G"><!--   edge-path [G]  pointx=0 pointy=10 offsetx=0 offsety=5  --></transition>
+  </state>
+  <state id="G"><!--   node-size-and-position x=370 y=180 w=80 h=30  --></state>
+ </state>
+ <state id="F"><!--   node-size-and-position x=350 y=320 w=90 h=30  -->
+  <onentry>en</onentry>
+  <onexit>ex</onexit>
+ </state>
+</scxml>

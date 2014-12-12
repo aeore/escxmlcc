@@ -1,0 +1,22 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=450 h=370  -->
+ <handlers>
+  <method name="foo"></method>
+  <method name="bar"></method>
+ </handlers>
+ <state id="init"><!--   node-size-and-position x=200 y=50 w=40 h=30  -->
+  <transition target="A"></transition>
+ </state>
+ <state id="A"><!--   node-size-and-position x=180 y=100 w=80 h=40  -->
+  <transition event="q" target="B"><!--   edge-path [B]  x=100 y=120 x=90 y=130 pointx=0 pointy=-10 offsetx=37 offsety=0  --></transition>
+  <transition event="w" target="C"><!--   edge-path [C]  x=350 y=120 x=360 y=130 pointx=-1 pointy=10 offsetx=40 offsety=0  --></transition>
+ </state>
+ <state id="B"><!--   node-size-and-position x=50 y=190 w=80 h=30  -->
+  <transition target="D">foo()<!--   edge-path [D]  x=90 y=290 x=100 y=300 pointx=1 pointy=10 offsetx=-40 offsety=0  --></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=320 y=190 w=80 h=30  -->
+  <transition target="D">bar()<!--   edge-path [D]  x=360 y=290 x=350 y=300 pointx=1 pointy=-10 offsetx=40 offsety=0  --></transition>
+ </state>
+ <state id="D"><!--   node-size-and-position x=180 y=280 w=80 h=40  -->
+  <transition target="A"></transition>
+ </state>
+</scxml>

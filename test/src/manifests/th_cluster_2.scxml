@@ -1,0 +1,22 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=480 h=270  -->
+ <datamodel>int a;</datamodel>
+ <handlers>
+  <method name="foo"></method>
+  <method name="bar"></method>
+ </handlers>
+ <state id="init"><!--   node-size-and-position x=130 y=40 w=40 h=30  -->
+  <transition target="Cluster"></transition>
+ </state>
+ <state id="Cluster" initial="i"><!--   node-size-and-position x=30 y=100 w=240 h=110  -->
+  <transition cond="a == 0" target="B">bar()<!--   edge-path [B]  pointx=0 pointy=5 offsetx=5 offsety=0  --></transition>
+  <transition cond="a &gt; 0" target="C"><!--   edge-path [C]  x=150 y=220 x=160 y=230 pointx=0 pointy=10 offsetx=17 offsety=0  --></transition>
+  <state id="i"><!--   node-size-and-position x=20 y=40 w=40 h=30  -->
+   <transition target="A">foo()</transition>
+  </state>
+  <state id="A"><!--   node-size-and-position x=140 y=40 w=80 h=30  --></state>
+ </state>
+ <state id="B"><!--   node-size-and-position x=370 y=140 w=80 h=30  -->
+  <transition cond="a++, true" target="Cluster"><!--   edge-path [Cluster]  x=410 y=100 x=400 y=90 x=250 y=90  --></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=370 y=210 w=80 h=40  --></state>
+</scxml>

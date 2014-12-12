@@ -1,0 +1,29 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=570 h=350  -->
+ <datamodel>int a;</datamodel>
+ <handlers>
+  <method name="foo"></method>
+  <method name="bar"></method>
+  <method name="gap"></method>
+  <method name="sub">
+   <arg name="value" type="int"></arg>
+  </method>
+ </handlers>
+ <state id="init"><!--   node-size-and-position x=130 y=40 w=40 h=30  -->
+  <transition target="Cluster"></transition>
+ </state>
+ <state id="Cluster" initial="i"><!--   node-size-and-position x=30 y=100 w=240 h=110  -->
+  <transition cond="a == 0" target="B">bar()<!--   edge-path [B]  pointx=0 pointy=5 offsetx=5 offsety=0  --></transition>
+  <state id="i"><!--   node-size-and-position x=20 y=40 w=40 h=30  -->
+   <transition target="A">foo()</transition>
+  </state>
+  <state id="A"><!--   node-size-and-position x=140 y=40 w=80 h=30  --></state>
+ </state>
+ <state id="B"><!--   node-size-and-position x=370 y=140 w=80 h=30  -->
+  <transition cond="++a &lt; 3" target="B">gap()<!--   edge-path [B]  pointx=0 pointy=-2 offsetx=42 offsety=-15  --></transition>
+  <transition cond="a == 3" target="C">sub( m.a )</transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=370 y=210 w=80 h=40  -->
+  <transition cond="a &gt; 2" event="w" target="D">gap()</transition>
+ </state>
+ <state id="D"><!--   node-size-and-position x=370 y=290 w=80 h=30  --></state>
+</scxml>

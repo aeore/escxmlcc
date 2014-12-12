@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Sequence.cpp" />
+    <ClCompile Include="src\TestSet.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Sequence.hpp" />
+    <ClInclude Include="src\TestSet.hpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E31BA74E-1B75-4D0F-BBF6-B96C6C7A30D2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>test</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\repo\scxmlcc\test\src;$(SolutionDir)\test\3rdparty\cppunit\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\test\3rdparty\cppunit\lib\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)test\out\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)test\out\obj\$(Configuration)\</IntDir>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>cppunit.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\one_state.scxml -o$(SolutionDir)test\src\manifests\gen\one_state.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_states_uncond.scxml -o$(SolutionDir)test\src\manifests\gen\two_states_uncond.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_states_event.scxml -o$(SolutionDir)test\src\manifests\gen\two_states_event.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_dr_ev.scxml -o$(SolutionDir)test\src\manifests\gen\three_dr_ev.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_event_bicyclic.scxml -o$(SolutionDir)test\src\manifests\gen\three_event_bicyclic.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_event_bicyclic_with_init.scxml -o$(SolutionDir)test\src\manifests\gen\two_event_bicyclic_with_init.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_event_bicyclic_with_init_diffevents.scxml -o$(SolutionDir)test\src\manifests\gen\two_event_bicyclic_with_init_diffevents.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\singlenode_selftrans_event.scxml -o$(SolutionDir)test\src\manifests\gen\singlenode_selftrans_event.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_fork.scxml -o$(SolutionDir)test\src\manifests\gen\three_fork.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_thiangle_with_back.scxml -o$(SolutionDir)test\src\manifests\gen\three_thiangle_with_back.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_rep_quiteandreturn.scxml -o$(SolutionDir)test\src\manifests\gen\three_rep_quiteandreturn.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\square_events.scxml -o$(SolutionDir)test\src\manifests\gen\square_events.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\star_and_cycling.scxml -o$(SolutionDir)test\src\manifests\gen\star_and_cycling.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\semievent_and_conditions.scxml -o$(SolutionDir)test\src\manifests\gen\semievent_and_conditions.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\counter.scxml -o$(SolutionDir)test\src\manifests\gen\counter.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\counter_transincr.scxml -o$(SolutionDir)test\src\manifests\gen\counter_transincr.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\diff_cond.scxml -o$(SolutionDir)test\src\manifests\gen\diff_cond.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_onenode.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_onenode.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_twonodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_twonodes.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_with_exit.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_with_exit.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_twonodes_ext_events.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_twonodes_ext_events.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_2.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_2.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_3.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_3.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_4.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_4.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_2_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_2_multinodes.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_1.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_1.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_2.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_2.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_3.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_3.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_4.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_4.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_5.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_5.hpp
+$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\include_1.scxml -o$(SolutionDir)test\src\manifests\gen\include_1.hpp</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

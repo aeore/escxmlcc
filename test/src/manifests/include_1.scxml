@@ -1,0 +1,13 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=570 h=190  -->
+ <datamodel>std::vector&lt;int&gt; v;</datamodel>
+ <header>
+
+#include &lt;vector&gt;
+ </header>
+ <state id="init"><!--   node-size-and-position x=260 y=40 w=40 h=40  -->
+  <transition cond="v.size() &gt; 0" event="q" target="full"><!--   edge-path [full]  x=190 y=60 x=180 y=70 pointx=1 pointy=0 offsetx=0 offsety=-30  --></transition>
+  <transition cond="v.size() == 0" event="q" target="empty"><!--   edge-path [empty]  x=370 y=60 x=380 y=70 pointx=1 pointy=0 offsetx=0 offsety=-30  --></transition>
+ </state>
+ <state id="full"><!--   node-size-and-position x=110 y=130 w=140 h=30  --></state>
+ <state id="empty"><!--   node-size-and-position x=310 y=130 w=140 h=30  --></state>
+</scxml>
