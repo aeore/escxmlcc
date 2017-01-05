@@ -34,6 +34,8 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <iostream>
+
 
 using namespace boost::property_tree;
 using namespace std;
