@@ -59,7 +59,11 @@ void scxmlcc( const options &opt )
       return ;
    }
    if (!ofs_cpp){
+<<<<<<< HEAD
       cerr << "Error openning " << opt.output_cpp.c_str() << endl;
+=======
+      cerr << "Error openning " << opt.output.c_str() << endl;
+>>>>>>> 3a9a9c98f837a971b1e6976276b12408a3240772
       return ;
    }
 
