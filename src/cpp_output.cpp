@@ -34,6 +34,9 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include <map>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -906,7 +909,8 @@ void parseExecutableMethodCall( std::string content, std::string& method, std::s
    std::string::size_type first_quote = content.find('(' );
    std::string::size_type last_quote = content.rfind( ')' );
 
-   params =  trim(  content.substr( first_quote + 1, last_quote - first_quote - 1  ) );
+   std::string x = content.substr( first_quote + 1, last_quote - first_quote - 1  ) ;
+   params =  trim(  x );
 }
 
 void cpp_output:: gen_template_calls()

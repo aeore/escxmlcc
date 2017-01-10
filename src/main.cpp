@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cctype>
 #include <boost/filesystem.hpp>
+#include <iostream>
 
 using namespace boost::property_tree;
 using namespace std;
@@ -52,6 +53,15 @@ void scxmlcc( const options &opt )
 
    ofstream ofs( opt.output.c_str() );
    ofstream ofs_cpp( opt.output_cpp.c_str() );
+
+   if (!ofs){
+      cerr << "Error openning " << opt.output.c_str() << endl;
+      return ;
+   }
+   if (!ofs_cpp){
+      cerr << "Error openning " << opt.output_cpp.c_str() << endl;
+      return ;
+   }
 
    cpp_output out( ofs, ofs_cpp, sc, opt );
    out.gen();
@@ -107,7 +117,7 @@ int main(int argc, char *argv[])
    }
 
    if ( vm.count("version") ) {
-      cout << "scxmlcc version: " << version() << endl;
+      std::cout << "scxmlcc version: " << version() << endl;
       cout << endl << "  <!> This is not an original scxmlcc FSM compiler <!>" << endl << endl;
       cout << "For more information about original version, see http://scxmlcc.org" << endl;
       cout << endl; 
