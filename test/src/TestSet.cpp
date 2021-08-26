@@ -57,7 +57,22 @@
 #include "manifests\gen\th_cluster_3.hpp"
 #include "manifests\gen\th_cluster_4.hpp"
 #include "manifests\gen\th_twoways.hpp"
-
+#include "manifests\gen\async_transition_1.hpp"
+#include "manifests\gen\async_transition_2.hpp"
+#include "manifests\gen\async_transition_3.hpp"
+#include "manifests\gen\async_transition_4.hpp"
+#include "manifests\gen\async_transition_5.hpp"
+#include "manifests\gen\async_transition_6.hpp"
+#include "manifests\gen\async_transition_7.hpp"
+#include "manifests\gen\async_transition_8.hpp"
+#include "manifests\gen\async_transition_9.hpp"
+#include "manifests\gen\async_transition_10.hpp"
+#include "manifests\gen\async_transition_11.hpp"
+#include "manifests\gen\async_transition_12.hpp"
+#include "manifests\gen\async_transition_13.hpp"
+#include "manifests\gen\async_transition_14.hpp"
+#include "manifests\gen\async_transition_15.hpp"
+#include "manifests\gen\async_transition_16.hpp"
 
 // --------------------------------------------------------------------------
 // Code implementation
@@ -113,7 +128,7 @@ void TestSet::testTwoStatesEvent( void )
 
    sequence.enter( "Init" ).check();
 
-   CTwo_states_eventFSM::event e = &CTwo_states_eventFSM::state::event_e;
+   CTwo_states_eventFSM::event e = &CTwo_states_eventFSM::state::trigger_e;
    chart.dispatch(e);
    sequence.exit( "Init" ).enter( "Node" ).check();
 }
@@ -131,7 +146,7 @@ void TestSet::testThreeDirectEvent( void )
    
    sequence.enter( "Init" ).exit( "Init" ).enter( "Node" ).check();
 
-   chart.dispatch( &CThree_dr_evFSM::state::event_ev );
+   chart.dispatch( &CThree_dr_evFSM::state::trigger_ev );
    sequence.exit( "Node" ).enter( "Cnode" ).check();
 }
 
@@ -148,16 +163,16 @@ void TestSet::testThreeBicyclicEvents( void )
 
    sequence.enter( "Init" ).exit( "Init" ).enter( "A" ).check();
 
-   chart.dispatch( &CThree_event_bicyclicFSM::state::event_q );
+   chart.dispatch( &CThree_event_bicyclicFSM::state::trigger_q );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CThree_event_bicyclicFSM::state::event_q );
+   chart.dispatch( &CThree_event_bicyclicFSM::state::trigger_q );
    sequence.exit( "B" ).enter( "A" ).check();
 
-   chart.dispatch( &CThree_event_bicyclicFSM::state::event_q );
+   chart.dispatch( &CThree_event_bicyclicFSM::state::trigger_q );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CThree_event_bicyclicFSM::state::event_q );
+   chart.dispatch( &CThree_event_bicyclicFSM::state::trigger_q );
    sequence.exit( "B" ).enter( "A" ).check();
 }
 
@@ -173,16 +188,16 @@ void TestSet::testTwoBicyclicEventsWithInit( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "S" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::trigger_q );
    sequence.exit( "S" ).enter( "Init" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "S" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_initFSM::state::trigger_q );
    sequence.exit( "S" ).enter( "Init" ).check();
 }
 
@@ -198,16 +213,16 @@ void TestSet::testTwoBicyclicEventsWithInitDiffEvents( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "S" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::event_r );
+   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::trigger_r );
    sequence.exit( "S" ).enter( "Init" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::event_q );
+   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "S" ).check();
 
-   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::event_r );
+   chart.dispatch( &CTwo_event_bicyclic_with_init_diffeventsFSM::state::trigger_r );
    sequence.exit( "S" ).enter( "Init" ).check();
 }
 
@@ -222,16 +237,16 @@ void TestSet::testSinglenodeSelftransitionEvent( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::event_q );
+   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "Init" ).check();
 
-   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::event_q );
+   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "Init" ).check();
 
-   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::event_q );
+   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "Init" ).check();
 
-   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::event_q );
+   chart.dispatch( &CSinglenode_selftrans_eventFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "Init" ).check();
 }
 
@@ -249,7 +264,7 @@ void TestSet::testThreeFork( void )
 
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CThree_forkFSM::state::event_q );
+      chart.dispatch( &CThree_forkFSM::state::trigger_q );
       sequence.exit( "Init" ).enter( "A" ).check();
    }
    {
@@ -257,7 +272,7 @@ void TestSet::testThreeFork( void )
 
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CThree_forkFSM::state::event_w );
+      chart.dispatch( &CThree_forkFSM::state::trigger_w );
       sequence.exit( "Init" ).enter( "B" ).check();
    }
 }
@@ -275,19 +290,19 @@ void TestSet::testThreeTriangleWithBack( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CThree_thiangle_with_backFSM::state::event_q );
+   chart.dispatch( &CThree_thiangle_with_backFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).check();
 
-   chart.dispatch( &CThree_thiangle_with_backFSM::state::event_q );
+   chart.dispatch( &CThree_thiangle_with_backFSM::state::trigger_q );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CThree_thiangle_with_backFSM::state::event_q );
+   chart.dispatch( &CThree_thiangle_with_backFSM::state::trigger_q );
    sequence.exit( "B" ).enter( "Init" ).check();
 
-   chart.dispatch( &CThree_thiangle_with_backFSM::state::event_w );
+   chart.dispatch( &CThree_thiangle_with_backFSM::state::trigger_w );
    sequence.exit( "Init" ).enter( "B" ).check();
 
-   chart.dispatch( &CThree_thiangle_with_backFSM::state::event_q );
+   chart.dispatch( &CThree_thiangle_with_backFSM::state::trigger_q );
    sequence.exit( "B" ).enter( "Init" ).check();
 }
 
@@ -304,31 +319,31 @@ void TestSet::testThreeRepeatQuiteAndReturn( void )
 
     sequence.enter( "Init" ).exit( "Init" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_q );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_q );
     sequence.exit( "R" ).enter( "A" ).exit( "A" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 
-    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::event_r );
+    chart.dispatch( &CThree_rep_quiteandreturnFSM::state::trigger_r );
     sequence.exit( "R" ).enter( "R" ).check();
 }
 
@@ -347,34 +362,34 @@ void TestSet::testSquareEvents( void )
 
    sequence.enter( "Init" ).exit( "Init" ).enter( "A" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_ab );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_ab );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_bc );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_bc );
    sequence.exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_cd );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_cd );
    sequence.exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_da );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_da );
    sequence.exit( "D" ).enter( "A" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_ab );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_ab );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_bd );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_bd );
    sequence.exit( "B" ).enter( "D" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_da );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_da );
    sequence.exit( "D" ).enter( "A" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_ab );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_ab );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_bc );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_bc );
    sequence.exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CSquare_eventsFSM::state::event_ca );
+   chart.dispatch( &CSquare_eventsFSM::state::trigger_ca );
    sequence.exit( "C" ).enter( "A" ).check();
 }
 
@@ -393,64 +408,64 @@ void TestSet::testStarAndCycling( void )
       RUN_TEST_FSM( Star_and_cycling );
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_q );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_q );
       sequence.exit( "Init" ).enter( "1" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "1" ).enter( "2" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "2" ).enter( "3" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "3" ).enter( "4" ).check();
    }
    {
       RUN_TEST_FSM( Star_and_cycling );
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_w );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_w );
       sequence.exit( "Init" ).enter( "2" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "2" ).enter( "3" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "3" ).enter( "4" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "4" ).enter( "1" ).check();
    }
    {
       RUN_TEST_FSM( Star_and_cycling );
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_e );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_e );
       sequence.exit( "Init" ).enter( "3" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "3" ).enter( "4" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "4" ).enter( "1" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "1" ).enter( "2" ).check();
    }
    {
       RUN_TEST_FSM( Star_and_cycling );
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_r );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_r );
       sequence.exit( "Init" ).enter( "4" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "4" ).enter( "1" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "1" ).enter( "2" ).check();
 
-      chart.dispatch( &CStar_and_cyclingFSM::state::event_z );
+      chart.dispatch( &CStar_and_cyclingFSM::state::trigger_z );
       sequence.exit( "2" ).enter( "3" ).check();
    }
 }
@@ -469,15 +484,15 @@ void TestSet::testSemieventAndConditions( void )
    sequence.enter( "Init" ).check();
 
    chart.setIndex( 5 );
-   chart.dispatch( &CSemievent_and_conditionsFSM::state::event_q );
+   chart.dispatch( &CSemievent_and_conditionsFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Init" ).check();
 
    chart.setIndex( 15 );
-   chart.dispatch( &CSemievent_and_conditionsFSM::state::event_q );
+   chart.dispatch( &CSemievent_and_conditionsFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "B" ).exit( "B" ).enter( "Init" ).check();
 
    chart.setIndex( 10 );
-   chart.dispatch( &CSemievent_and_conditionsFSM::state::event_q );
+   chart.dispatch( &CSemievent_and_conditionsFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "C" ).exit( "C" ).enter( "Init" ).check();
 }
 
@@ -527,7 +542,7 @@ void TestSet::testDiffCond( void )
 
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CDiff_condFSM::state::event_q );
+      chart.dispatch( &CDiff_condFSM::state::trigger_q );
       sequence.check();
    }
    
@@ -539,7 +554,7 @@ void TestSet::testDiffCond( void )
       chart.setData( 7 );
       chart.setStr( "SET" );
       chart.setValue( 8 );
-      chart.dispatch( &CDiff_condFSM::state::event_q );
+      chart.dispatch( &CDiff_condFSM::state::trigger_q );
       sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Init" ).check();
    }
 }
@@ -605,13 +620,13 @@ void TestSet::testClusterTwoNodesEventsAndEventExit( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::event_qw );
+   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::trigger_qw );
    sequence.exit( "Init" ).enter( "Cluster" ).enter( "A" ).check();
 
-   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::event_qw );
+   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::trigger_qw );
    sequence.exit( "A" ).enter( "B" ).check();
 
-   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::event_we );
+   chart.dispatch( &CCluster_twonodes_ext_eventsFSM::state::trigger_we );
    sequence.exit( "B" ).exit( "Cluster" ).enter( "C" ).check();
 }
 
@@ -633,18 +648,18 @@ void TestSet::testClusterMultinodes( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_multinodesFSM::state::event_q );
+   chart.dispatch( &CCluster_multinodesFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
       exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_multinodesFSM::state::event_d );
+   chart.dispatch( &CCluster_multinodesFSM::state::trigger_d );
    sequence.exit( "C" ).enter( "D" ).exit( "D" ).exit( "Cluster" ).enter( "F" ).check();
 
-   chart.dispatch( &CCluster_multinodesFSM::state::event_w );
+   chart.dispatch( &CCluster_multinodesFSM::state::trigger_w );
    sequence.exit( "F" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
       exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_multinodesFSM::state::event_e );
+   chart.dispatch( &CCluster_multinodesFSM::state::trigger_e );
    sequence.exit( "C" ).enter( "E" ).exit( "E" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -666,24 +681,24 @@ void TestSet::testClusterMultinodes2( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_q );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
       exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_d );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_d );
    sequence.exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_yy );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_yy );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "F" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_w );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_w );
    sequence.exit( "F" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
       exit( "B" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_e );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_e );
    sequence.exit( "C" ).enter( "E" ).check();
 
-   chart.dispatch( &CCluster_multinodes_2FSM::state::event_yy );
+   chart.dispatch( &CCluster_multinodes_2FSM::state::trigger_yy );
    sequence.exit( "E" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -704,14 +719,14 @@ void TestSet::testClusterMultinodes3( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_multinodes_3FSM::state::event_q );
+   chart.dispatch( &CCluster_multinodes_3FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
    exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_multinodes_3FSM::state::event_yy );
+   chart.dispatch( &CCluster_multinodes_3FSM::state::trigger_yy );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "F" ).check();
 
-   chart.dispatch( &CCluster_multinodes_3FSM::state::event_w );
+   chart.dispatch( &CCluster_multinodes_3FSM::state::trigger_w );
    sequence.exit( "F" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
    exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 }
@@ -733,21 +748,21 @@ void TestSet::testClusterMultinodes4( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_multinodes_4FSM::state::event_q );
+   chart.dispatch( &CCluster_multinodes_4FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
    exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_multinodes_4FSM::state::event_yy );
+   chart.dispatch( &CCluster_multinodes_4FSM::state::trigger_yy );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "F" ).check();
 
-   chart.dispatch( &CCluster_multinodes_4FSM::state::event_w );
+   chart.dispatch( &CCluster_multinodes_4FSM::state::trigger_w );
    sequence.exit( "F" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
    exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_multinodes_4FSM::state::event_r );
+   chart.dispatch( &CCluster_multinodes_4FSM::state::trigger_r );
    sequence.exit( "D" ).enter( "B" ).exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_multinodes_4FSM::state::event_yy );
+   chart.dispatch( &CCluster_multinodes_4FSM::state::trigger_yy );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -770,14 +785,14 @@ void TestSet::testCluster2Multinodes( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_2_multinodesFSM::state::event_q );
+   chart.dispatch( &CCluster_2_multinodesFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).
    exit( "B" ).enter( "C" ).exit( "C" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_2_multinodesFSM::state::event_yy );
+   chart.dispatch( &CCluster_2_multinodesFSM::state::trigger_yy );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "Cluster_2" ).enter( "C_init" ).check();
 
-   chart.dispatch( &CCluster_2_multinodesFSM::state::event_y );
+   chart.dispatch( &CCluster_2_multinodesFSM::state::trigger_y );
    sequence.exit( "C_init" ).enter( "G" ).exit( "G" ).exit( "Cluster_2" ).enter( "A" )
       .exit( "A" ).enter( "Cluster" ).enter( "B" ).exit( "B" ).enter( "C" )
       .exit( "C" ).enter( "D" ).check();
@@ -801,14 +816,14 @@ void TestSet::testClusterRec2Multinodes( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodesFSM::state::event_q );
+   chart.dispatch( &CCluster_rec2_multinodesFSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).exit( "B" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).exit( "R" )
       .exit( "Cluster_2" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodesFSM::state::event_r );
+   chart.dispatch( &CCluster_rec2_multinodesFSM::state::trigger_r );
    sequence.exit( "D" ).enter( "B" ).exit( "B" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).enter( "D" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodesFSM::state::event_t );
+   chart.dispatch( &CCluster_rec2_multinodesFSM::state::trigger_t );
    sequence.exit( "D" ).exit( "Cluster" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" ).exit( "B" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).exit( "R" )
       .exit( "Cluster_2" ).enter( "D" ).check();
 }
@@ -831,11 +846,11 @@ void TestSet::testClusterRec2Multinodes_1( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_1FSM::state::event_q );
+   chart.dispatch( &CCluster_rec2_multinodes_1FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" )
       .exit( "B" ).enter( "Cluster_2" ).enter( "I" ).check();
       
-   chart.dispatch( &CCluster_rec2_multinodes_1FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_1FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).enter( "D" ).check();
 }
 
@@ -857,11 +872,11 @@ void TestSet::testClusterRec2Multinodes_2( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_2FSM::state::event_q );
+   chart.dispatch( &CCluster_rec2_multinodes_2FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" )
       .exit( "B" ).enter( "Cluster_2" ).enter( "I" ).check();
       
-   chart.dispatch( &CCluster_rec2_multinodes_2FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_2FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).exit( "Cluster" )
       .enter( "F" ).check();
 }
@@ -884,14 +899,14 @@ void TestSet::testClusterRec2Multinodes_3( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::event_q );
+   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" )
       .exit( "B" ).enter( "Cluster_2" ).enter( "I" ).check();
       
-   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::event_r );
+   chart.dispatch( &CCluster_rec2_multinodes_3FSM::state::trigger_r );
    sequence.exit( "R" ).exit( "Cluster_2" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -915,33 +930,33 @@ void TestSet::testClusterRec2Multinodes_4( void )
 
    sequence.enter( "Init" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_q );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_q );
    sequence.exit( "Init" ).enter( "A" ).exit( "A" ).enter( "Cluster" ).enter( "B" )
       .exit( "B" ).enter( "Cluster_2" ).enter( "I" ).check();
       
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_j );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_j );
    sequence.exit( "C" ).enter( "Cluster_2" ).enter( "I" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_k );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_k );
    sequence.exit( "C" ).enter( "G" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_d );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_d );
    sequence.exit( "G" ).exit( "Cluster" ).enter( "Cluster" ).enter( "B" )
       .exit( "B" ).enter( "Cluster_2" ).enter( "I" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_u );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_u );
    sequence.exit( "I" ).enter( "R" ).exit( "R" ).exit( "Cluster_2" ).enter( "C" ).check();
    
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_k );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_k );
    sequence.exit( "C" ).enter( "G" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::event_r );
+   chart.dispatch( &CCluster_rec2_multinodes_4FSM::state::trigger_r );
    sequence.exit( "G" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -964,22 +979,22 @@ void TestSet::testClusterRec2Multinodes_5( void )
 
    sequence.enter( "Init" ).exit( "Init" ).enter( "Cluster" ).enter( "B" ).exit( "B" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).check();
       
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_y );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_y );
    sequence.exit( "R" ).exit( "Cluster_2" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_k );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_k );
    sequence.exit( "R" ).exit( "Cluster_2" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_j );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_j );
    sequence.exit( "C" ).enter( "Cluster_2" ).enter( "I" ).exit( "I" ).enter( "R" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_k );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_k );
    sequence.exit( "R" ).exit( "Cluster_2" ).enter( "C" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_k );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_k );
    sequence.exit( "C" ).enter( "G" ).check();
 
-   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::event_r );
+   chart.dispatch( &CCluster_rec2_multinodes_5FSM::state::trigger_r );
    sequence.exit( "G" ).exit( "Cluster" ).enter( "F" ).check();
 }
 
@@ -997,7 +1012,7 @@ void TestSet::testInclude_1( void )
       chart.init();
       sequence.enter( "Init" ).check();
 
-      chart.dispatch( &CInclude_1FSM::state::event_q );
+      chart.dispatch( &CInclude_1FSM::state::trigger_q );
       sequence.exit( "Init" ).enter( "Empty" ).check();
    }
    
@@ -1010,7 +1025,7 @@ void TestSet::testInclude_1( void )
       k.push_back( 9 );
       chart.setV( k );
 
-      chart.dispatch( &CInclude_1FSM::state::event_q );
+      chart.dispatch( &CInclude_1FSM::state::trigger_q );
       sequence.exit( "Init" ).enter( "Full" ).check();
    }
 }
@@ -1057,9 +1072,9 @@ void TestSet::testTHCluster1( void )
    RUN_TEST_FSM( Th_cluster_1 );
 
    sequence.enter( "Init" ).exit( "Init" ).enter( "Cluster" ).enter( "I" ).check();
-   chart.dispatch( &CTh_cluster_1FSM::state::event_q );
+   chart.dispatch( &CTh_cluster_1FSM::state::trigger_q );
    sequence.exit( "I" ).tr_action( "Foo" ).enter( "A" ).check();
-   chart.dispatch( &CTh_cluster_1FSM::state::event_q );
+   chart.dispatch( &CTh_cluster_1FSM::state::trigger_q );
    sequence.exit( "A" ).exit( "Cluster" ).tr_action( "Bar" ).enter( "B" ).check();
 } 
 
@@ -1105,7 +1120,7 @@ void TestSet::testTHCluster3( void )
    sequence.enter( "Init" ).exit( "Init" ).enter( "Cluster" ).enter( "I" ).exit( "I" ).tr_action( "Foo" ).enter( "A" ).exit( "A" ).exit( "Cluster" ).tr_action( "Bar" ).enter( "B" )
       .exit( "B" ).tr_action( "Gap" ).enter( "B" ).exit( "B" ).tr_action( "Gap" ).enter( "B" ).exit( "B" ).tr_action( "Sub" ).enter( "C" ).check();
 
-   chart.dispatch( &CTh_cluster_3FSM::state::event_w );
+   chart.dispatch( &CTh_cluster_3FSM::state::trigger_w );
    sequence.exit( "C" ).tr_action( "Gap" ).enter( "D" ).check();
 }
 
@@ -1134,7 +1149,7 @@ void TestSet::testTHCluster4( void )
       .enter( "Ii" ).exit( "Ii" ).enter( "G" ).exit( "G" ).exit( "B" ).tr_action( "Gap" ).enter( "B" ).enter( "Ii" ).exit( "Ii" ).enter( "G" ).exit( "G" ).exit( "B" ).tr_action( "Gap" )
       .enter( "B" ).enter( "Ii" ).exit( "Ii" ).enter( "G" ).exit( "G" ).exit( "B" ).tr_action( "Sub" ).enter( "C" ).check();
 
-   chart.dispatch( &CTh_cluster_4FSM::state::event_w );
+   chart.dispatch( &CTh_cluster_4FSM::state::trigger_w );
    sequence.exit( "C" ).tr_action( "Gap" ).enter( "D" ).check();
 }
 
@@ -1148,16 +1163,284 @@ DEFINE_TEST_CASE( Th_twoways,
    ACTION( Th_twoways, Foo )
    ACTION( Th_twoways, Bar )
 );
-void TestSet::testTHTwoWays( void )
+void TestSet::testTHTwoWays(void)
 // --------------------------------------------------------------------------
 {
-   RUN_TEST_FSM( Th_twoways );
+   RUN_TEST_FSM(Th_twoways);
 
-   sequence.enter( "Init" ).exit( "Init" ).enter( "A" ).check();
+   sequence.enter("Init").exit("Init").enter("A").check();
 
-   chart.dispatch( &CTh_twowaysFSM::state::event_q );
-   sequence.exit( "A" ).enter( "B" ).exit( "B" ).tr_action( "Foo" ).enter( "D" ).exit( "D" ).enter( "A" ).check();
+   chart.dispatch(&CTh_twowaysFSM::state::trigger_q);
+   sequence.exit("A").enter("B").exit("B").tr_action("Foo").enter("D").exit("D").enter("A").check();
 
-   chart.dispatch( &CTh_twowaysFSM::state::event_w );
-   sequence.exit( "A" ).enter( "C" ).exit( "C" ).tr_action( "Bar" ).enter( "D" ).exit( "D" ).enter( "A" ).check();
+   chart.dispatch(&CTh_twowaysFSM::state::trigger_w);
+   sequence.exit("A").enter("C").exit("C").tr_action("Bar").enter("D").exit("D").enter("A").check();
+}
+
+ENV_CASE( Async_transition_1,
+   ENV_STATE( Async_transition_1, Init )
+   ENV_STATE( Async_transition_1, A )
+   ENV_STATE( Async_transition_1, B )
+);
+void TestSet::testAsyncNameTransition_1(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_1,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_1FSM::state::event_z).exit("A").enter("B")
+   );
+}
+
+ENV_CASE( Async_transition_2,
+   ENV_STATE( Async_transition_2, Init )
+   ENV_STATE( Async_transition_2, A )
+   ENV_STATE( Async_transition_2, B )
+   ENV_STATE( Async_transition_2, C )
+);
+void TestSet::testAsyncNameTransition_2(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_2,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_2FSM::state::trigger_n).exit("A").enter("B").dispatch_async(&CAsync_transition_2FSM::state::event_z).exit("B").enter("C")
+   );
+}
+
+ENV_CASE( Async_transition_3,
+   ENV_STATE( Async_transition_3, Init )
+   ENV_STATE( Async_transition_3, A )
+   ENV_STATE( Async_transition_3, B )
+   ENV_STATE( Async_transition_3, C )
+   ENV_STATE( Async_transition_3, D )
+);
+void TestSet::testAsyncNameTransition_3(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_3,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_3FSM::state::trigger_n).exit("A").enter("B").dispatch_async(&CAsync_transition_3FSM::state::event_z).exit("B").enter("C").dispatch_async(&CAsync_transition_3FSM::state::event_x).exit("C").enter("D")
+   );
+}
+
+ENV_CASE( Async_transition_4,
+   ENV_STATE( Async_transition_4, Init )
+   ENV_STATE( Async_transition_4, A )
+   ENV_STATE( Async_transition_4, B )
+   ENV_STATE( Async_transition_4, C )
+);
+void TestSet::testAsyncNameTransition_4(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_4,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_4FSM::state::trigger_n).exit("A").enter("B").dispatch_async().exit("B").enter("C")
+   );
+}
+
+ENV_CASE( Async_transition_5,
+   ENV_STATE( Async_transition_5, Init )
+   ENV_STATE( Async_transition_5, A )
+   ENV_STATE( Async_transition_5, B )
+   ENV_STATE( Async_transition_5, C )
+   ENV_STATE( Async_transition_5, D )
+);
+void TestSet::testAsyncNameTransition_5(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_5,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_5FSM::state::trigger_n).exit("A").enter("B").dispatch_async().exit("B").enter("C").dispatch_async().exit("C").enter("D")
+   );
+}
+
+ENV_CASE( Async_transition_6,
+   ENV_STATE( Async_transition_6, Init )
+   ENV_STATE( Async_transition_6, A )
+   ENV_STATE( Async_transition_6, B )
+   ENV_STATE( Async_transition_6, C )
+   ENV_STATE( Async_transition_6, D )
+);
+void TestSet::testAsyncNameTransition_6(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_6,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_6FSM::state::trigger_n).exit("A").enter("B").dispatch_async(&CAsync_transition_6FSM::state::event_z).exit("B").enter("C").dispatch_async().exit("C").enter("D")
+   );
+}
+
+ENV_CASE( Async_transition_7,
+   ENV_STATE( Async_transition_7, Init )
+   ENV_STATE( Async_transition_7, A )
+   ENV_STATE( Async_transition_7, B )
+   ENV_STATE( Async_transition_7, C )
+   ENV_STATE( Async_transition_7, D )
+);
+void TestSet::testAsyncNameTransition_7(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_7,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_7FSM::state::trigger_n).exit("A").enter("B").dispatch_async().exit("B").enter("C").dispatch_async(&CAsync_transition_7FSM::state::event_z).exit("C").enter("D")
+   );
+}
+
+ENV_CASE(Async_transition_8,
+   ENV_STATE(Async_transition_8, Init)
+   ENV_STATE(Async_transition_8, A)
+   ENV_STATE(Async_transition_8, B)
+   ENV_STATE(Async_transition_8, C)
+   ENV_STATE(Async_transition_8, D)
+);
+void TestSet::testAsyncNameTransition_8( void )
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_8,
+      enter("Init").exit("Init").enter("A").dispatch_sync(&CAsync_transition_8FSM::state::trigger_n).exit("A").enter("B").dispatch_async().exit("B").enter("C").dispatch_async(&CAsync_transition_8FSM::state::event_z).exit("C").enter("D").dispatch_async().exit("D").enter("B")
+                                                                                                                         .dispatch_async().exit("B").enter("C").dispatch_async(&CAsync_transition_8FSM::state::event_z).exit("C").enter("D").dispatch_async().exit("D").enter("B")
+   );
+}
+
+ENV_CASE( Async_transition_9,
+   ENV_STATE( Async_transition_9, Init )
+   ENV_STATE( Async_transition_9, A )
+   ENV_STATE( Async_transition_9, B )
+   ENV_STATE( Async_transition_9, C )
+   ENV_STATE( Async_transition_9, Init_c )
+   ENV_STATE( Async_transition_9, Cluster )
+);
+void TestSet::testAsyncNameTransition_9( void )
+{
+   ENVIRONMENT_FSM_CASE( Async_transition_9,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_9FSM::state::event_a).exit("A").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_9FSM::state::event_z)
+      .exit("B").exit("Cluster").enter("C")
+   );
+}
+
+ENV_CASE(Async_transition_10,
+   ENV_STATE(Async_transition_10, Init)
+   ENV_STATE(Async_transition_10, A)
+   ENV_STATE(Async_transition_10, B)
+   ENV_STATE(Async_transition_10, C)
+   ENV_STATE(Async_transition_10, D)
+   ENV_STATE(Async_transition_10, Init_c)
+   ENV_STATE(Async_transition_10, Cluster)
+);
+void TestSet::testAsyncNameTransition_10(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_10,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_10FSM::state::event_a).exit("A").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_10FSM::state::event_h)
+      .exit("B").enter("D").dispatch_async(&CAsync_transition_10FSM::state::event_z)
+      .exit("D").exit("Cluster").enter("C")
+   );
+}
+
+ENV_CASE(Async_transition_11,
+   ENV_STATE(Async_transition_11, Init)
+   ENV_STATE(Async_transition_11, A)
+   ENV_STATE(Async_transition_11, B)
+   ENV_STATE(Async_transition_11, C)
+   ENV_STATE(Async_transition_11, D)
+   ENV_STATE(Async_transition_11, Init_c)
+   ENV_STATE(Async_transition_11, Cluster)
+);
+void TestSet::testAsyncNameTransition_11( void )
+{
+   ENVIRONMENT_FSM_CASE( Async_transition_11,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_11FSM::state::event_a).exit("A").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async()
+      .exit("B").enter("D").dispatch_async(&CAsync_transition_11FSM::state::event_z)
+      .exit("D").exit("Cluster").enter("C")
+   );
+}
+
+ENV_CASE(Async_transition_12,
+   ENV_STATE(Async_transition_12, Init)
+   ENV_STATE(Async_transition_12, A)
+   ENV_STATE(Async_transition_12, B)
+   ENV_STATE(Async_transition_12, C)
+   ENV_STATE(Async_transition_12, D)
+   ENV_STATE(Async_transition_12, Init_c)
+   ENV_STATE(Async_transition_12, Cluster)
+);
+void TestSet::testAsyncNameTransition_12( void )
+{
+   ENVIRONMENT_FSM_CASE( Async_transition_12,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_12FSM::state::event_a).exit("A").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_12FSM::state::event_z)
+      .exit("B").exit("Cluster").enter("C").exit("C").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_12FSM::state::event_e)
+      .exit("B").exit("Cluster").enter("D").exit("D").enter("Cluster").enter("Init_c").exit("Init_c").enter("B")
+   );
+}
+
+ENV_CASE(Async_transition_13,
+   ENV_STATE(Async_transition_13, Init)
+   ENV_STATE(Async_transition_13, A)
+   ENV_STATE(Async_transition_13, B)
+   ENV_STATE(Async_transition_13, C)
+   ENV_STATE(Async_transition_13, D)
+   ENV_STATE(Async_transition_13, Init_c)
+   ENV_STATE(Async_transition_13, Cluster)
+);
+void TestSet::testAsyncNameTransition_13(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_13,
+      enter("Init").exit("Init").enter("A").dispatch_async(&CAsync_transition_13FSM::state::event_e).exit("A").enter("Cluster").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_13FSM::state::event_e)
+      .exit("B").enter("Init_c").exit("Init_c").enter("B").dispatch_async(&CAsync_transition_13FSM::state::event_o)
+      .exit("B").exit("Cluster").enter("D").exit("D").enter("Cluster").enter("Init_c").exit("Init_c").enter("B")
+   );
+}
+
+ENV_CASE(Async_transition_14,
+   ENV_STATE(Async_transition_14, Init)
+   ENV_STATE(Async_transition_14, A)
+   ENV_STATE(Async_transition_14, B)
+   ENV_STATE(Async_transition_14, C)
+   ENV_STATE(Async_transition_14, D)
+   ENV_STATE(Async_transition_14, Init_c)
+   ENV_STATE(Async_transition_14, Cluster)
+);
+void TestSet::testAsyncNameTransition_14(void)
+{
+   ENVIRONMENT_FSM_CASE(Async_transition_14,
+      enter("Init").exit("Init").enter("A").dispatch_async( &CAsync_transition_14FSM::state::event_e )
+      .exit("A").enter("Cluster").enter("Init_c").dispatch_async()
+      .exit("Init_c").enter("B").dispatch_async( &CAsync_transition_14FSM::state::event_w )
+      .exit("B").enter("C").exit("C").enter("B").dispatch_async( &CAsync_transition_14FSM::state::event_o )
+      .exit("B").exit("Cluster").enter("D")
+   );
+}
+
+ENV_CASE(Async_transition_15,
+   ENV_STATE(Async_transition_15, Init)
+   ENV_STATE(Async_transition_15, A)
+   ENV_STATE(Async_transition_15, B)
+);
+void TestSet::testAsyncNameTransition_15(void)
+{
+   {
+      ENVIRONMENT_FSM_CASE(Async_transition_15,
+         enter("Init").exit("Init").enter("A").lambda([](CAsync_transition_15FSM& fsm){ fsm.setValue(5); }).dispatch_async(&CAsync_transition_15FSM::state::event_e)
+      );
+   }
+
+   {
+      ENVIRONMENT_FSM_CASE(Async_transition_15,
+         enter("Init").exit("Init").enter("A").lambda([](CAsync_transition_15FSM& fsm){ fsm.setValue(8); }).dispatch_async(&CAsync_transition_15FSM::state::event_e)
+         .exit("A").enter("B")
+      );
+   }
+}
+
+ENV_CASE(Async_transition_16,
+   ENV_STATE(Async_transition_16, Init)
+   ENV_STATE(Async_transition_16, A)
+   ENV_STATE(Async_transition_16, B)
+   ENV_STATE(Async_transition_16, C)
+   ENV_STATE(Async_transition_16, D)
+   ENV_STATE(Async_transition_16, E)
+   ENV_STATE(Async_transition_16, F)
+   ENV_STATE(Async_transition_16, G)
+   ENV_STATE(Async_transition_16, H)
+   ENV_STATE(Async_transition_16, Cluster)
+   ENV_STATE(Async_transition_16, Cluster_2)
+);
+void TestSet::testAsyncNameTransition_16(void)
+{
+   {
+      ENVIRONMENT_FSM_CASE(Async_transition_16,
+         enter("Init").exit("Init").enter("A").lambda([](CAsync_transition_16FSM& fsm){ fsm.setValue(10); }).dispatch_async(&CAsync_transition_16FSM::state::event_e)
+         .exit("A").enter("B").exit("B").enter("Cluster").enter("C").dispatch_sync(&CAsync_transition_16FSM::state::trigger_t)
+         .exit("C").enter("D").lambda([](CAsync_transition_16FSM& fsm){ fsm.setValue(1); }).dispatch_async(&CAsync_transition_16FSM::state::event_w)
+         .exit("D").enter("Cluster_2").enter("E").exit("E").enter("F").dispatch_async(&CAsync_transition_16FSM::state::event_x)
+         .exit("F").exit("Cluster_2").enter("H").dispatch_async()
+            .exit("H").enter("C").dispatch_sync(&CAsync_transition_16FSM::state::trigger_t)
+            .exit("C").enter("D").lambda([](CAsync_transition_16FSM& fsm){ fsm.setValue(7); }).dispatch_async(&CAsync_transition_16FSM::state::event_w)
+            .exit("D").enter("Cluster_2").enter("F").dispatch_async(&CAsync_transition_16FSM::state::event_z)
+         .exit("F").exit("Cluster_2").exit("Cluster").enter("G")
+      );
+   }
 }

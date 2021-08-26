@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,18 +23,19 @@
     <ProjectGuid>{E31BA74E-1B75-4D0F-BBF6-B96C6C7A30D2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>test</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -50,10 +51,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\repo\scxmlcc\test\src;$(SolutionDir)\test\3rdparty\cppunit\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\test\3rdparty\cppunit\lib\;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)test\out\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)test\out\obj\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)\src;$(SolutionDir)3rdparty\cppunit\include\;$(SolutionDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\out\lib\$(Configuration);$(SolutionDir)\3rdparty\cppunit\lib\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)\out\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\out\obj\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -65,47 +66,70 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WITH_LOGGING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cppunit.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cppunit.lib;EnvironmentFramework.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\one_state.scxml -o$(SolutionDir)test\src\manifests\gen\one_state.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_states_uncond.scxml -o$(SolutionDir)test\src\manifests\gen\two_states_uncond.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_states_event.scxml -o$(SolutionDir)test\src\manifests\gen\two_states_event.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_dr_ev.scxml -o$(SolutionDir)test\src\manifests\gen\three_dr_ev.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_event_bicyclic.scxml -o$(SolutionDir)test\src\manifests\gen\three_event_bicyclic.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_event_bicyclic_with_init.scxml -o$(SolutionDir)test\src\manifests\gen\two_event_bicyclic_with_init.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\two_event_bicyclic_with_init_diffevents.scxml -o$(SolutionDir)test\src\manifests\gen\two_event_bicyclic_with_init_diffevents.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\singlenode_selftrans_event.scxml -o$(SolutionDir)test\src\manifests\gen\singlenode_selftrans_event.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_fork.scxml -o$(SolutionDir)test\src\manifests\gen\three_fork.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_thiangle_with_back.scxml -o$(SolutionDir)test\src\manifests\gen\three_thiangle_with_back.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\three_rep_quiteandreturn.scxml -o$(SolutionDir)test\src\manifests\gen\three_rep_quiteandreturn.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\square_events.scxml -o$(SolutionDir)test\src\manifests\gen\square_events.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\star_and_cycling.scxml -o$(SolutionDir)test\src\manifests\gen\star_and_cycling.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\semievent_and_conditions.scxml -o$(SolutionDir)test\src\manifests\gen\semievent_and_conditions.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\counter.scxml -o$(SolutionDir)test\src\manifests\gen\counter.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\counter_transincr.scxml -o$(SolutionDir)test\src\manifests\gen\counter_transincr.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\diff_cond.scxml -o$(SolutionDir)test\src\manifests\gen\diff_cond.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_onenode.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_onenode.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_twonodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_twonodes.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_with_exit.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_with_exit.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_twonodes_ext_events.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_twonodes_ext_events.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_2.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_2.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_3.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_3.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_multinodes_4.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_multinodes_4.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_2_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_2_multinodes.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_1.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_1.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_2.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_2.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_3.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_3.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_4.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_4.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\cluster_rec2_multinodes_5.scxml -o$(SolutionDir)test\src\manifests\gen\cluster_rec2_multinodes_5.hpp
-$(SolutionDir)out\bin\$(Configuration)\escxmlcc.exe -i$(SolutionDir)test\src\manifests\include_1.scxml -o$(SolutionDir)test\src\manifests\gen\include_1.hpp</Command>
+      <Command>$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\one_state.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\two_states_uncond.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\two_states_event.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\three_dr_ev.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\three_event_bicyclic.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\two_event_bicyclic_with_init.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\two_event_bicyclic_with_init_diffevents.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\singlenode_selftrans_event.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\three_fork.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\three_thiangle_with_back.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\three_rep_quiteandreturn.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\square_events.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\star_and_cycling.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\semievent_and_conditions.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\counter.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\counter_transincr.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\diff_cond.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_onenode.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_twonodes.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_with_exit.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_twonodes_ext_events.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_multinodes.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_multinodes_2.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_multinodes_3.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_multinodes_4.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_2_multinodes.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes_1.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes_2.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes_3.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes_4.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\cluster_rec2_multinodes_5.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\include_1.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_simple.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_simple_param.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_cluster_1.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_cluster_2.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_cluster_3.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_cluster_4.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\th_twoways.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_1.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_2.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_3.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_4.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_5.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_6.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_7.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_8.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_9.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_10.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_11.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_12.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_13.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_14.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_15.scxml -o$(ProjectDir)\src\manifests\gen\
+$(ProjectDir)..\out\bin\$(Configuration)\escxmlcc.exe -i$(ProjectDir)src\manifests\async_transition_16.scxml -o$(ProjectDir)\src\manifests\gen\</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

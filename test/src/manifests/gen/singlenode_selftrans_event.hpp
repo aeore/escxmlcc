@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,8 +46,9 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_q( CSinglenode_selftrans_eventFSM& ) { return 0; }
+		virtual state* trigger_q( CSinglenode_selftrans_eventFSM& ) { return 0; }
 		virtual state* unconditional( CSinglenode_selftrans_eventFSM& ) { return 0; }
+		virtual state* unconditional_async( CSinglenode_selftrans_eventFSM& ) { return 0; }
 		virtual state* initial( CSinglenode_selftrans_eventFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -58,6 +60,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CSinglenode_selftrans_eventFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CSinglenode_selftrans_eventFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CSinglenode_selftrans_eventFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CSinglenode_selftrans_eventFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CSinglenode_selftrans_eventFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -138,6 +194,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -147,13 +209,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CSinglenode_selftrans_eventFSM( ISinglenode_selftrans_eventActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CSinglenode_selftrans_eventFSM( ISinglenode_selftrans_eventActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -168,13 +231,18 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CSinglenode_selftrans_eventFSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CSinglenode_selftrans_eventFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		state* event_q( CSinglenode_selftrans_eventFSM &sc ) {
-			if ( true ) return transition<1, &state::event_q, state_init, state_init>()( this, sc.m_state_init, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_q( CSinglenode_selftrans_eventFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<1, &state::trigger_q, state_init, state_init>()( this, sc.m_state_init, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CSinglenode_selftrans_eventFSM &sc ) { return 0; }

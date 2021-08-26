@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,12 +46,13 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_e( CStar_and_cyclingFSM& ) { return 0; }
-		virtual state* event_q( CStar_and_cyclingFSM& ) { return 0; }
-		virtual state* event_r( CStar_and_cyclingFSM& ) { return 0; }
-		virtual state* event_w( CStar_and_cyclingFSM& ) { return 0; }
-		virtual state* event_z( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* trigger_e( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* trigger_q( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* trigger_r( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* trigger_w( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* trigger_z( CStar_and_cyclingFSM& ) { return 0; }
 		virtual state* unconditional( CStar_and_cyclingFSM& ) { return 0; }
+		virtual state* unconditional_async( CStar_and_cyclingFSM& ) { return 0; }
 		virtual state* initial( CStar_and_cyclingFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -62,6 +64,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CStar_and_cyclingFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CStar_and_cyclingFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CStar_and_cyclingFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CStar_and_cyclingFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CStar_and_cyclingFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -142,6 +198,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -151,13 +213,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CStar_and_cyclingFSM( IStar_and_cyclingActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CStar_and_cyclingFSM( IStar_and_cyclingActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -172,25 +235,36 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CStar_and_cyclingFSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CStar_and_cyclingFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		state* event_e( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<4, &state::event_e, state_init, state_3>()( this, sc.m_state_3, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_e( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<4, &state::trigger_e, state_init, state_3>()( this, sc.m_state_3, sc );
 			else return 0;
 		}
-		state* event_q( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<1, &state::event_q, state_init, state_1>()( this, sc.m_state_1, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_q( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<1, &state::trigger_q, state_init, state_1>()( this, sc.m_state_1, sc );
 			else return 0;
 		}
-		state* event_r( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<2, &state::event_r, state_init, state_4>()( this, sc.m_state_4, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_r( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<2, &state::trigger_r, state_init, state_4>()( this, sc.m_state_4, sc );
 			else return 0;
 		}
-		state* event_w( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<3, &state::event_w, state_init, state_2>()( this, sc.m_state_2, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_w( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<3, &state::trigger_w, state_init, state_2>()( this, sc.m_state_2, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CStar_and_cyclingFSM &sc ) { return 0; }
@@ -198,8 +272,10 @@ public:
 
 	class state_1: public composite<state_1, scxml>
 	{
-		state* event_z( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<5, &state::event_z, state_1, state_2>()( this, sc.m_state_2, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_z( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<5, &state::trigger_z, state_1, state_2>()( this, sc.m_state_2, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CStar_and_cyclingFSM &sc ) { return 0; }
@@ -207,8 +283,10 @@ public:
 
 	class state_2: public composite<state_2, scxml>
 	{
-		state* event_z( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<6, &state::event_z, state_2, state_3>()( this, sc.m_state_3, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_z( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<6, &state::trigger_z, state_2, state_3>()( this, sc.m_state_3, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CStar_and_cyclingFSM &sc ) { return 0; }
@@ -216,8 +294,10 @@ public:
 
 	class state_3: public composite<state_3, scxml>
 	{
-		state* event_z( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<7, &state::event_z, state_3, state_4>()( this, sc.m_state_4, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_z( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<7, &state::trigger_z, state_3, state_4>()( this, sc.m_state_4, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CStar_and_cyclingFSM &sc ) { return 0; }
@@ -225,8 +305,10 @@ public:
 
 	class state_4: public composite<state_4, scxml>
 	{
-		state* event_z( CStar_and_cyclingFSM &sc ) {
-			if ( true ) return transition<8, &state::event_z, state_4, state_1>()( this, sc.m_state_1, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_z( CStar_and_cyclingFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<8, &state::trigger_z, state_4, state_1>()( this, sc.m_state_1, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CStar_and_cyclingFSM &sc ) { return 0; }

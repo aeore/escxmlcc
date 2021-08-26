@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,9 +46,10 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_q( CCluster_rec2_multinodes_2FSM& ) { return 0; }
-		virtual state* event_u( CCluster_rec2_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_q( CCluster_rec2_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_u( CCluster_rec2_multinodes_2FSM& ) { return 0; }
 		virtual state* unconditional( CCluster_rec2_multinodes_2FSM& ) { return 0; }
+		virtual state* unconditional_async( CCluster_rec2_multinodes_2FSM& ) { return 0; }
 		virtual state* initial( CCluster_rec2_multinodes_2FSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -59,6 +61,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CCluster_rec2_multinodes_2FSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CCluster_rec2_multinodes_2FSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_rec2_multinodes_2FSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CCluster_rec2_multinodes_2FSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_rec2_multinodes_2FSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -139,6 +195,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -148,13 +210,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CCluster_rec2_multinodes_2FSM( ICluster_rec2_multinodes_2ActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CCluster_rec2_multinodes_2FSM( ICluster_rec2_multinodes_2ActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -169,13 +232,18 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CCluster_rec2_multinodes_2FSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CCluster_rec2_multinodes_2FSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		state* event_q( CCluster_rec2_multinodes_2FSM &sc ) {
-			if ( true ) return transition<1, &state::event_q, state_init, state_A>()( this, sc.m_state_A, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_q( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<1, &state::trigger_q, state_init, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) { return 0; }
@@ -183,7 +251,9 @@ public:
 
 	class state_A: public composite<state_A, scxml>
 	{
-		virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<2, &state::unconditional, state_A, state_Cluster>()( this, sc.m_state_Cluster, sc );
 			else return 0;
 		}
@@ -192,7 +262,9 @@ public:
 	class state_Cluster: public composite<state_Cluster, scxml>
 	{
 		state* initial( CCluster_rec2_multinodes_2FSM &sc ) { return transition<0, &state::initial, state_Cluster, state_B, internal>()( this, sc.m_state_B, sc ); }
-		virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<3, &state::unconditional, state_Cluster, state_F>()( this, sc.m_state_F, sc );
 			else return 0;
 		}
@@ -200,7 +272,9 @@ public:
 
 	class state_B: public composite<state_B, state_Cluster>
 	{
-		virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<4, &state::unconditional, state_B, state_Cluster_2>()( this, sc.m_state_Cluster_2, sc );
 			else return 0;
 		}
@@ -213,8 +287,10 @@ public:
 
 	class state_i: public composite<state_i, state_Cluster_2>
 	{
-		state* event_u( CCluster_rec2_multinodes_2FSM &sc ) {
-			if ( true ) return transition<5, &state::event_u, state_i, state_R>()( this, sc.m_state_R, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_u( CCluster_rec2_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<5, &state::trigger_u, state_i, state_R>()( this, sc.m_state_R, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_rec2_multinodes_2FSM &sc ) { return 0; }

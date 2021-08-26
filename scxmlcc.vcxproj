@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -14,18 +14,20 @@
     <ProjectGuid>{4AE3D8D4-C93E-412B-A655-C5E1CD7B013F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>scxmlcc</RootNamespace>
+    <ProjectName>escxmlcc</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -41,16 +43,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Tools\Libraries\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Tools\Libraries\boost_1_55_0\stage\lib;D:\Tools\Libraries\boost_1_55_0\libs;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)out\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)out\obj\$(Configuration)\</IntDir>
+    <IncludePath>$(BOOST_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_DIR)\stage\lib;D:\Libraries\boost_1_70_0\bin.v2\libs\filesystem\build\msvc-14.1\dbg\lnk-sttc\thrd-mlt;$(BOOST_DIR)\libs;D:\Libraries\boost_1_70_0\bin.v2\libs\program_options\build\msvc-14.1\dbg\lnk-sttc\thrd-mlt\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)out\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)out\obj\$(Configuration)\</IntDir>
     <TargetName>escxmlcc</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Tools\Libraries\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Tools\Libraries\boost_1_55_0\stage\lib;D:\Tools\Libraries\boost_1_55_0\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_DIR)\stage\lib;$(BOOST_DIR)\libs;$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)out\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)out\obj\$(Configuration)\</IntDir>
+    <TargetName>escxmlcc</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -73,7 +78,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

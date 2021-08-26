@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,9 +46,10 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_q( CTh_twowaysFSM& ) { return 0; }
-		virtual state* event_w( CTh_twowaysFSM& ) { return 0; }
+		virtual state* trigger_q( CTh_twowaysFSM& ) { return 0; }
+		virtual state* trigger_w( CTh_twowaysFSM& ) { return 0; }
 		virtual state* unconditional( CTh_twowaysFSM& ) { return 0; }
+		virtual state* unconditional_async( CTh_twowaysFSM& ) { return 0; }
 		virtual state* initial( CTh_twowaysFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -59,6 +61,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CTh_twowaysFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CTh_twowaysFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CTh_twowaysFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CTh_twowaysFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CTh_twowaysFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -139,6 +195,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -148,13 +210,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CTh_twowaysFSM( ITh_twowaysActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CTh_twowaysFSM( ITh_twowaysActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -169,12 +232,17 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CTh_twowaysFSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CTh_twowaysFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<1, &state::unconditional, state_init, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
@@ -182,12 +250,16 @@ public:
 
 	class state_A: public composite<state_A, scxml>
 	{
-		state* event_q( CTh_twowaysFSM &sc ) {
-			if ( true ) return transition<2, &state::event_q, state_A, state_B>()( this, sc.m_state_B, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_q( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<2, &state::trigger_q, state_A, state_B>()( this, sc.m_state_B, sc );
 			else return 0;
 		}
-		state* event_w( CTh_twowaysFSM &sc ) {
-			if ( true ) return transition<3, &state::event_w, state_A, state_C>()( this, sc.m_state_C, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_w( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<3, &state::trigger_w, state_A, state_C>()( this, sc.m_state_C, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CTh_twowaysFSM &sc ) { return 0; }
@@ -195,7 +267,9 @@ public:
 
 	class state_B: public composite<state_B, scxml>
 	{
-		virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<4, &state::unconditional, state_B, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
@@ -203,7 +277,9 @@ public:
 
 	class state_C: public composite<state_C, scxml>
 	{
-		virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<5, &state::unconditional, state_C, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
@@ -211,7 +287,9 @@ public:
 
 	class state_D: public composite<state_D, scxml>
 	{
-		virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_twowaysFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<6, &state::unconditional, state_D, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}

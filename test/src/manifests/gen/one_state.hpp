@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -46,6 +47,7 @@ public:
 	{
 	public:
 		virtual state* unconditional( COne_stateFSM& ) { return 0; }
+		virtual state* unconditional_async( COne_stateFSM& ) { return 0; }
 		virtual state* initial( COne_stateFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -57,6 +59,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( COne_stateFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( COne_stateFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		COne_stateFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( COne_stateFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		COne_stateFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -137,6 +193,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -146,13 +208,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	COne_stateFSM( IOne_stateActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	COne_stateFSM( IOne_stateActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -167,8 +230,11 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( COne_stateFSM&sc ) { return transition<0, &state::initial, scxml, state_Node, internal>()( this, sc.m_state_Node, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( COne_stateFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_Node, internal>()( this, sc.m_state_Node, sc ); }
+		} m_scxml;
 
 	class state_Node: public composite<state_Node, scxml>
 	{

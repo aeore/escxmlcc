@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -46,6 +47,7 @@ public:
 	{
 	public:
 		virtual state* unconditional( CCluster_with_exitFSM& ) { return 0; }
+		virtual state* unconditional_async( CCluster_with_exitFSM& ) { return 0; }
 		virtual state* initial( CCluster_with_exitFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -57,6 +59,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CCluster_with_exitFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CCluster_with_exitFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_with_exitFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CCluster_with_exitFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_with_exitFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -137,6 +193,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -146,13 +208,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CCluster_with_exitFSM( ICluster_with_exitActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CCluster_with_exitFSM( ICluster_with_exitActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -167,12 +230,17 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CCluster_with_exitFSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CCluster_with_exitFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<1, &state::unconditional, state_init, state_Cluster>()( this, sc.m_state_Cluster, sc );
 			else return 0;
 		}
@@ -181,7 +249,9 @@ public:
 	class state_Cluster: public composite<state_Cluster, scxml>
 	{
 		state* initial( CCluster_with_exitFSM &sc ) { return transition<0, &state::initial, state_Cluster, state_A, internal>()( this, sc.m_state_A, sc ); }
-		virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<2, &state::unconditional, state_Cluster, state_C>()( this, sc.m_state_C, sc );
 			else return 0;
 		}
@@ -189,7 +259,9 @@ public:
 
 	class state_A: public composite<state_A, state_Cluster>
 	{
-		virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_with_exitFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<3, &state::unconditional, state_A, state_B>()( this, sc.m_state_B, sc );
 			else return 0;
 		}

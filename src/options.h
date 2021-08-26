@@ -1,6 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
- ** Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>
+ ** Copyright (C) 2015 Yuriy Gurin <ygurin@outlook.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -25,8 +25,9 @@ struct options
 {
 	boost::filesystem::path input;
 	boost::filesystem::path output;
-   boost::filesystem::path output_cpp;
+    boost::filesystem::path output_cpp;
 	bool debug;
+	bool withAsyncs;
 
 	options() : debug(false) {}
 

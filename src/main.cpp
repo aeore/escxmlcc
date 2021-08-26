@@ -1,6 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
- ** Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>
+ ** Copyright (C) 2015 Yuriy Gurin <ygurin@outlook.com>
  ** 
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+#include <iostream>
 #include "scxml_parser.h"
 #include "cpp_output.h"
 #include "options.h"
@@ -26,7 +27,6 @@
 #include <algorithm>
 #include <cctype>
 #include <boost/filesystem.hpp>
-#include <iostream>
 
 using namespace boost::property_tree;
 using namespace std;
@@ -52,18 +52,8 @@ void scxmlcc( const options &opt )
    scxml_parser sc( sc_name.c_str(), pt );
 
    ofstream ofs( opt.output.c_str() );
-   ofstream ofs_cpp( opt.output_cpp.c_str() );
 
-   if (!ofs){
-      cerr << "Error openning " << opt.output.c_str() << endl;
-      return ;
-   }
-   if (!ofs_cpp){
-      cerr << "Error openning " << opt.output_cpp.c_str() << endl;
-      return ;
-   }
-
-   cpp_output out( ofs, ofs_cpp, sc, opt );
+   cpp_output out( ofs, sc, opt );
    out.gen();
 }
 // --------------------------------------------------------------------------
@@ -77,6 +67,7 @@ int main(int argc, char *argv[])
       ( "help,h", "This help message" )
       ( "input,i", value<string>(),	"Input file" )
       ( "output,o", value<string>(),	"Output directory" )
+	  ( "asyncs,a", bool_switch()->default_value(false), "With Asyncs")
       ( "version,v", "Version information" );
 
    positional_options_description pdesc;
@@ -94,6 +85,8 @@ int main(int argc, char *argv[])
    }
 
    options opt;
+
+   opt.withAsyncs = vm["asyncs"].as<bool>();
 
    if ( vm.count("input") ) {
       opt.input = vm["input"].as<string>();
@@ -117,7 +110,7 @@ int main(int argc, char *argv[])
    }
 
    if ( vm.count("version") ) {
-      std::cout << "scxmlcc version: " << version() << endl;
+      cout << "scxmlcc version: " << version() << endl;
       cout << endl << "  <!> This is not an original scxmlcc FSM compiler <!>" << endl << endl;
       cout << "For more information about original version, see http://scxmlcc.org" << endl;
       cout << endl; 

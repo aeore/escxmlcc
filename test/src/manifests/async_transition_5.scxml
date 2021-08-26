@@ -1,0 +1,15 @@
+<scxml initial="init" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=680 h=350  -->
+ <state id="A"><!--   node-size-and-position x=140 y=170 w=80 h=40  -->
+  <transition event="n" target="B"></transition>
+ </state>
+ <state id="init"><!--   node-size-and-position x=150 y=100 w=60 h=30  -->
+  <transition target="A"></transition>
+ </state>
+ <state id="B"><!--   node-size-and-position x=290 y=170 w=80 h=40  -->
+  <transition event="@" target="C"></transition>
+ </state>
+ <state id="C"><!--   node-size-and-position x=460 y=170 w=80 h=40  -->
+  <transition event="@" target="D"></transition>
+ </state>
+ <state id="D"><!--   node-size-and-position x=460 y=250 w=80 h=40  --></state>
+</scxml>

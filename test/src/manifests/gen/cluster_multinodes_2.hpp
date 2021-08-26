@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,12 +46,13 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_d( CCluster_multinodes_2FSM& ) { return 0; }
-		virtual state* event_e( CCluster_multinodes_2FSM& ) { return 0; }
-		virtual state* event_q( CCluster_multinodes_2FSM& ) { return 0; }
-		virtual state* event_w( CCluster_multinodes_2FSM& ) { return 0; }
-		virtual state* event_yy( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_d( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_e( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_q( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_w( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* trigger_yy( CCluster_multinodes_2FSM& ) { return 0; }
 		virtual state* unconditional( CCluster_multinodes_2FSM& ) { return 0; }
+		virtual state* unconditional_async( CCluster_multinodes_2FSM& ) { return 0; }
 		virtual state* initial( CCluster_multinodes_2FSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -62,6 +64,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CCluster_multinodes_2FSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CCluster_multinodes_2FSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_multinodes_2FSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CCluster_multinodes_2FSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CCluster_multinodes_2FSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -142,6 +198,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -151,13 +213,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CCluster_multinodes_2FSM( ICluster_multinodes_2ActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CCluster_multinodes_2FSM( ICluster_multinodes_2ActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -172,13 +235,18 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CCluster_multinodes_2FSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CCluster_multinodes_2FSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		state* event_q( CCluster_multinodes_2FSM &sc ) {
-			if ( true ) return transition<1, &state::event_q, state_init, state_A>()( this, sc.m_state_A, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_q( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<1, &state::trigger_q, state_init, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) { return 0; }
@@ -186,7 +254,9 @@ public:
 
 	class state_A: public composite<state_A, scxml>
 	{
-		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<2, &state::unconditional, state_A, state_Cluster>()( this, sc.m_state_Cluster, sc );
 			else return 0;
 		}
@@ -195,8 +265,10 @@ public:
 	class state_Cluster: public composite<state_Cluster, scxml>
 	{
 		state* initial( CCluster_multinodes_2FSM &sc ) { return transition<0, &state::initial, state_Cluster, state_B, internal>()( this, sc.m_state_B, sc ); }
-		state* event_yy( CCluster_multinodes_2FSM &sc ) {
-			if ( true ) return transition<3, &state::event_yy, state_Cluster, state_F>()( this, sc.m_state_F, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_yy( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<3, &state::trigger_yy, state_Cluster, state_F>()( this, sc.m_state_F, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) { return 0; }
@@ -204,7 +276,9 @@ public:
 
 	class state_B: public composite<state_B, state_Cluster>
 	{
-		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<4, &state::unconditional, state_B, state_C>()( this, sc.m_state_C, sc );
 			else return 0;
 		}
@@ -212,12 +286,16 @@ public:
 
 	class state_C: public composite<state_C, state_Cluster>
 	{
-		state* event_d( CCluster_multinodes_2FSM &sc ) {
-			if ( true ) return transition<5, &state::event_d, state_C, state_D>()( this, sc.m_state_D, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_d( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<5, &state::trigger_d, state_C, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
-		state* event_e( CCluster_multinodes_2FSM &sc ) {
-			if ( true ) return transition<6, &state::event_e, state_C, state_E>()( this, sc.m_state_E, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_e( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<6, &state::trigger_e, state_C, state_E>()( this, sc.m_state_E, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) { return 0; }
@@ -233,8 +311,10 @@ public:
 
 	class state_F: public composite<state_F, scxml>
 	{
-		state* event_w( CCluster_multinodes_2FSM &sc ) {
-			if ( true ) return transition<7, &state::event_w, state_F, state_A>()( this, sc.m_state_A, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_w( CCluster_multinodes_2FSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<7, &state::trigger_w, state_F, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CCluster_multinodes_2FSM &sc ) { return 0; }

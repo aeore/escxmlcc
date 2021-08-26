@@ -1,5 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
+ ** Copyright (C) 2015 Juriy Gurin <ygurin@outlook.com>
  ** 
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -27,14 +28,13 @@
 class cpp_output {
 
 	std::ostream &out;
-   std::ostream &out_cpp;
 	const scxml_parser &sc;
 	const options &opt;
 	std::string tab;
    int mTransitionIndex;
 
 	public:
-	cpp_output(std::ostream &ofs, std::ostream& ofscpp,/*std::ostream &ofs_aha, std::ostream &ofs_ahd,*/ const scxml_parser &sc, const options &op) : out(ofs), out_cpp(ofscpp),/* out_aha(ofs_aha), out_ahd(ofs_ahd),*/ sc(sc), opt(op), tab("\t"), mTransitionIndex(0) {};
+	cpp_output(std::ostream &ofs, /*std::ostream &ofs_aha, std::ostream &ofs_ahd,*/ const scxml_parser &sc, const options &op) : out(ofs), /* out_aha(ofs_aha), out_ahd(ofs_ahd),*/ sc(sc), opt(op), tab("\t"), mTransitionIndex(0) {};
 
 	void gen();
 
@@ -46,6 +46,7 @@ class cpp_output {
 	std::string state_actions_t();
 	std::string state_composite_t();
 	std::string state_parallel_t();
+   void gen_async_event(void);
 	void gen_model_base();
 	void gen_state_base();
 	void gen_state_composite_base();
@@ -60,7 +61,6 @@ class cpp_output {
 	scxml_parser::state_list children(const scxml_parser::state &state);
    void gen_ahi_header();
    void gen_ahd_header();
-   void gen_cpp();
    void gen_template_calls();
 
    std::string UpperFirstLetter(std::string word);

@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -54,8 +55,9 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_w( CTh_cluster_4FSM& ) { return 0; }
+		virtual state* trigger_w( CTh_cluster_4FSM& ) { return 0; }
 		virtual state* unconditional( CTh_cluster_4FSM& ) { return 0; }
+		virtual state* unconditional_async( CTh_cluster_4FSM& ) { return 0; }
 		virtual state* initial( CTh_cluster_4FSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -67,6 +69,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CTh_cluster_4FSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CTh_cluster_4FSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CTh_cluster_4FSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CTh_cluster_4FSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CTh_cluster_4FSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -147,6 +203,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -156,13 +218,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CTh_cluster_4FSM( ITh_cluster_4ActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CTh_cluster_4FSM( ITh_cluster_4ActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -177,12 +240,17 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CTh_cluster_4FSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CTh_cluster_4FSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
 			if ( true ) return transition<1, &state::unconditional, state_init, state_Cluster>()( this, sc.m_state_Cluster, sc );
 			else return 0;
@@ -192,7 +260,9 @@ public:
 	class state_Cluster: public composite<state_Cluster, scxml>
 	{
 		state* initial( CTh_cluster_4FSM &sc ) { return transition<0, &state::initial, state_Cluster, state_i, internal>()( this, sc.m_state_i, sc ); }
-		virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
 			if ( a == 0 ) return transition<2, &state::unconditional, state_Cluster, state_B>()( this, sc.m_state_B, sc );
 			else return 0;
@@ -201,7 +271,9 @@ public:
 
 	class state_i: public composite<state_i, state_Cluster>
 	{
-		virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
 			if ( true ) return transition<3, &state::unconditional, state_i, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
@@ -215,7 +287,9 @@ public:
 	class state_B: public composite<state_B, scxml>
 	{
 		state* initial( CTh_cluster_4FSM &sc ) { return transition<0, &state::initial, state_B, state_ii, internal>()( this, sc.m_state_ii, sc ); }
-		virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
 			if ( ++a < 3 ) return transition<4, &state::unconditional, state_B, state_B>()( this, sc.m_state_B, sc );
 			if ( a == 3 ) return transition<5, &state::unconditional, state_B, state_C>()( this, sc.m_state_C, sc );
@@ -225,7 +299,9 @@ public:
 
 	class state_ii: public composite<state_ii, state_B>
 	{
-		virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
 			if ( true ) return transition<6, &state::unconditional, state_ii, state_G>()( this, sc.m_state_G, sc );
 			else return 0;
@@ -238,9 +314,11 @@ public:
 
 	class state_C: public composite<state_C, scxml>
 	{
-		state* event_w( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline state* trigger_w( CTh_cluster_4FSM &sc ) {
+		// --------------------------------------------------------------------------
 			int& a = sc.model.a;
-			if ( a > 2 ) return transition<7, &state::event_w, state_C, state_D>()( this, sc.m_state_D, sc );
+			if ( a > 2 ) return transition<7, &state::trigger_w, state_C, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CTh_cluster_4FSM &sc ) { return 0; }
@@ -460,7 +538,7 @@ template<> inline void CTh_cluster_4FSM::state_actions<CTh_cluster_4FSM::state_C
 }
 
 // --------------------------------------------------------------------------
-template<> inline void CTh_cluster_4FSM::transition_actions<7, &CTh_cluster_4FSM::state::event_w, CTh_cluster_4FSM::state_C, CTh_cluster_4FSM::state_D>::enter(CTh_cluster_4FSM::data_model& m )
+template<> inline void CTh_cluster_4FSM::transition_actions<7, &CTh_cluster_4FSM::state::trigger_w, CTh_cluster_4FSM::state_C, CTh_cluster_4FSM::state_D>::enter(CTh_cluster_4FSM::data_model& m )
 // --------------------------------------------------------------------------
 {
 	m.actionHandler->onGap( m );

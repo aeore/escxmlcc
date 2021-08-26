@@ -1,6 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
- ** Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>
+ ** Copyright (C) 2015 Yuriy Gurin <ygurin@outlook.com>
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -32,10 +32,9 @@
 #include <boost/algorithm/string.hpp>
 #include <functional> 
 #include <algorithm> 
+#include <iostream>
 #include <cctype>
 #include <locale>
-#include <iostream>
-
 
 using namespace boost::property_tree;
 using namespace std;

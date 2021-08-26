@@ -19,6 +19,7 @@
 
 #include <typeinfo>
 #include <memory>
+#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // User space
@@ -45,13 +46,14 @@ public:
 	class state
 	{
 	public:
-		virtual state* event_ab( CSquare_eventsFSM& ) { return 0; }
-		virtual state* event_bc( CSquare_eventsFSM& ) { return 0; }
-		virtual state* event_bd( CSquare_eventsFSM& ) { return 0; }
-		virtual state* event_ca( CSquare_eventsFSM& ) { return 0; }
-		virtual state* event_cd( CSquare_eventsFSM& ) { return 0; }
-		virtual state* event_da( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_ab( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_bc( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_bd( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_ca( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_cd( CSquare_eventsFSM& ) { return 0; }
+		virtual state* trigger_da( CSquare_eventsFSM& ) { return 0; }
 		virtual state* unconditional( CSquare_eventsFSM& ) { return 0; }
+		virtual state* unconditional_async( CSquare_eventsFSM& ) { return 0; }
 		virtual state* initial( CSquare_eventsFSM& ) { return 0; }
 
 		template<class T> void enter( data_model&, ... ) {}
@@ -63,6 +65,60 @@ public:
 	state *cur_state;
 	typedef state* ( state::*event )( CSquare_eventsFSM& );
 
+private: 
+	class CPAsyncEventTransitionData
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncEventTransitionData( CSquare_eventsFSM& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CSquare_eventsFSM& mFSM;
+		event mTrigger;
+	};
+
+	DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );
+
+	class CPAsyncTriggerInvoker : public IPAsyncEventConsumer
+	{
+	public:
+		// --------------------------------------------------------------------------
+		CPAsyncTriggerInvoker( CSquare_eventsFSM& fsm ) : mFsm( fsm ) { /* none */ }
+		// --------------------------------------------------------------------------
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return 0;
+		}
+
+		// --------------------------------------------------------------------------
+		inline state* makeAsyncUCall( const event trigger ) {
+		// --------------------------------------------------------------------------
+			CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );
+			e->setConsumer( this );
+			e->send();
+			return (state*)0xFFFFFF;
+		}
+
+	protected:
+		// --------------------------------------------------------------------------
+		inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }
+		// --------------------------------------------------------------------------
+
+	private:
+		CSquare_eventsFSM& mFsm;
+	} asyncTriggerInvoker;
+
+public:
 	template<class C> class state_actions
 	{
 	protected:
@@ -143,6 +199,12 @@ private:
 		if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;
 		return next_state;
 	}
+	// --------------------------------------------------------------------------
+	bool dispatch_uasync( event e )
+	// --------------------------------------------------------------------------
+	{
+		return (cur_state->*e)(*this) == (state*)0xFFFFFF;
+	}
 
 public:
 	// --------------------------------------------------------------------------
@@ -152,13 +214,14 @@ public:
 		bool cont = dispatch_event( e );
 		while ( cont ) {
 			if ( (cont = dispatch_event(&state::initial)) );
-			else if ( (cont = dispatch_event(&state::unconditional)) );
+			else if ( dispatch_uasync(&state::unconditional_async) );
+			else if ( cont = dispatch_event(&state::unconditional) );
 			else break;
 		}
 	}
 
 	// --------------------------------------------------------------------------
-	CSquare_eventsFSM( ISquare_eventsActionHandler* pActionHandler ) : cur_state( &m_scxml )
+	CSquare_eventsFSM( ISquare_eventsActionHandler* pActionHandler ) : cur_state( &m_scxml ), asyncTriggerInvoker( *this )
 	// --------------------------------------------------------------------------
 	{
 		model.actionHandler = pActionHandler;
@@ -173,12 +236,17 @@ public:
 
 	class scxml : public composite<scxml, state>
 	{
-		state* initial( CSquare_eventsFSM&sc ) { return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
-	} m_scxml;
+		// --------------------------------------------------------------------------
+		state* initial( CSquare_eventsFSM&sc ) {
+		// --------------------------------------------------------------------------
+			return transition<0, &state::initial, scxml, state_init, internal>()( this, sc.m_state_init, sc ); }
+		} m_scxml;
 
 	class state_init: public composite<state_init, scxml>
 	{
-		virtual state* unconditional( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+		inline virtual state* unconditional( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
 			if ( true ) return transition<1, &state::unconditional, state_init, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
@@ -186,8 +254,10 @@ public:
 
 	class state_A: public composite<state_A, scxml>
 	{
-		state* event_ab( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<2, &state::event_ab, state_A, state_B>()( this, sc.m_state_B, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_ab( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<2, &state::trigger_ab, state_A, state_B>()( this, sc.m_state_B, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CSquare_eventsFSM &sc ) { return 0; }
@@ -195,12 +265,16 @@ public:
 
 	class state_B: public composite<state_B, scxml>
 	{
-		state* event_bc( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<3, &state::event_bc, state_B, state_C>()( this, sc.m_state_C, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_bc( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<3, &state::trigger_bc, state_B, state_C>()( this, sc.m_state_C, sc );
 			else return 0;
 		}
-		state* event_bd( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<4, &state::event_bd, state_B, state_D>()( this, sc.m_state_D, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_bd( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<4, &state::trigger_bd, state_B, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CSquare_eventsFSM &sc ) { return 0; }
@@ -208,8 +282,10 @@ public:
 
 	class state_D: public composite<state_D, scxml>
 	{
-		state* event_da( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<5, &state::event_da, state_D, state_A>()( this, sc.m_state_A, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_da( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<5, &state::trigger_da, state_D, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CSquare_eventsFSM &sc ) { return 0; }
@@ -217,12 +293,16 @@ public:
 
 	class state_C: public composite<state_C, scxml>
 	{
-		state* event_ca( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<7, &state::event_ca, state_C, state_A>()( this, sc.m_state_A, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_ca( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<7, &state::trigger_ca, state_C, state_A>()( this, sc.m_state_A, sc );
 			else return 0;
 		}
-		state* event_cd( CSquare_eventsFSM &sc ) {
-			if ( true ) return transition<6, &state::event_cd, state_C, state_D>()( this, sc.m_state_D, sc );
+		// --------------------------------------------------------------------------
+		inline state* trigger_cd( CSquare_eventsFSM &sc ) {
+		// --------------------------------------------------------------------------
+			if ( true ) return transition<6, &state::trigger_cd, state_C, state_D>()( this, sc.m_state_D, sc );
 			else return 0;
 		}
 		virtual state* unconditional( CSquare_eventsFSM &sc ) { return 0; }

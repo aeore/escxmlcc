@@ -1,5 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
+ ** Copyright (C) 2015 Juriy Gurin <ygurin@outlook.com>
  ** 
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
 //todo fix this in releases
 
 #ifndef VER
-#define VER "0.3"
+#define VER "0.5/R"
 #endif
 #define STR_EXPAND(tok) #tok
 #define STR(tok) STR_EXPAND(tok)

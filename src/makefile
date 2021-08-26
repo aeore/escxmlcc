@@ -15,21 +15,22 @@
 #** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*************************************************************************
 
-URL := "$HeadURL: http://scxmlcc.googlecode.com/svn/tags/0.2.1/src/makefile $"
-URL_TRUNK := $(findstring trunk,$(URL))
-URL_TAG := $(firstword $(subst /, ,$(word 3,$(subst tags, ,$(URL)))))
-VER := $(or $(URL_TRUNK), $(URL_TAG), unknown)
+# URL := "$HeadURL: http://scxmlcc.googlecode.com/svn/tags/0.2.1/src/makefile $"
+# URL_TRUNK := $(findstring trunk,$(URL))
+# URL_TAG := $(firstword $(subst /, ,$(word 3,$(subst tags, ,$(URL)))))
+# VER := $(or $(URL_TRUNK), $(URL_TAG), unknown)
 
 OBJS := main.o cpp_output.o scxml_parser.o version.o
-CPPFLAGS := -Wall -O2 -MD -MP -DVER="$(VER)" -std=c++11
+CPPFLAGS := -Wall -O2 -MD -MP -std=c++0x 
+# -DVER="$(VER)"
 
-all: scxmlcc
+all: escxmlcc
 
-scxmlcc: $(OBJS)
+escxmlcc: $(OBJS)
 	$(CXX) -o $@ $^ -lboost_program_options -lboost_system -lboost_filesystem
 
 clean:
-	rm -f $(OBJS) $(OBJS:.o=.d) scxmlcc
+	rm -f $(OBJS) $(OBJS:.o=.d) escxmlcc
 
 
 -include $(OBJS:.o=.d)

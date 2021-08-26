@@ -1,5 +1,6 @@
 /*************************************************************************
  ** Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>
+ ** Copyright (C) 2015 Juriy Gurin <ygurin@outlook.com>
  ** 
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -35,8 +36,7 @@
 #include <boost/foreach.hpp>
 #include <map>
 #include <iostream>
-#include <string>
-#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -181,6 +181,7 @@ void cpp_output::gen_transition_base()
 
 void cpp_output::gen_state_actions_base()
 {
+   out << "public:" << endl;
 	out << tab << "template<class C> class " << state_actions_t() << endl;
 	out << tab << "{" << endl;
 	// enter/exit
@@ -400,9 +401,15 @@ void cpp_output::gen_state_base()
 		}
 	}
 	for (set<string>::const_iterator i = event_set.begin(); i != event_set.end(); ++i) {
-		out << tab << tab << "virtual " << state_t() << "* event_" << *i << "( " << classname() << "& ) { return 0; }" << endl;
+      std::string trig_event_name = *i;
+      bool been = std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end();
+      std::string::const_iterator it = trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
+      out << tab << tab << "virtual " << state_t() << "* trigger_" << trig_event_name << "( " << classname() << "& ) { return 0; }" << endl;
+      if (been)
+       out << tab << tab << "virtual " << state_t() << "* event_" << trig_event_name << "( " << classname() << "& ) { return 0; }" << endl;
 	}
 	out << tab << tab << "virtual " << state_t() << "* unconditional( " << classname() << "& ) { return 0; }" << endl;
+   out << tab << tab << "virtual " << state_t() << "* unconditional_async( " << classname() << "& ) { return 0; }" << endl;
 	out << tab << tab << "virtual " << state_t() << "* initial( " << classname() << "& ) { return 0; }" << endl;
 
 	out << endl;
@@ -434,19 +441,29 @@ void cpp_output::gen_state_base()
 
 scxml_parser::state_list cpp_output::children(const scxml_parser::state &state)
 {
-	scxml_parser::state_list states;
-	for ( scxml_parser::state_list::const_iterator i = sc.sc().states.begin(); i != sc.sc().states.end(); ++i ) {
-		if ( (*i)->parent && (*i)->parent->id == state.id ) {
+   scxml_parser::state_list states;
+   for (scxml_parser::state_list::const_iterator i = sc.sc().states.begin(); i != sc.sc().states.end(); ++i) {
+      if ((*i)->parent && (*i)->parent->id == state.id) {
          states.push_back(*i);
       }
-	}
-	return states;
+   }
+   return states;
+}
+
+bool isAsyncTransitions(const scxml_parser::state &state)
+{
+   for (scxml_parser::transition_list::const_iterator t = state.transitions.begin(); t != state.transitions.end(); ++t) {
+      if (t->get()->event){
+         std::string trig_event_name = *t->get()->event;
+         if (std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end())
+            return true;
+      }
+   }
+   return false;
 }
 
 void cpp_output::gen_state(const scxml_parser::state &state)
 {
-  // const bool parallel_state = state.type && *state.type == "parallel";
-
    string parent, prefix;
 	if ( state.type && *state.type == "inter" ) prefix = "inter";
 
@@ -456,27 +473,16 @@ void cpp_output::gen_state(const scxml_parser::state &state)
 
 	string state_classname = prefix + "state_" + state.id;
 
-   /*if(parallel_state) {
-		scxml_parser::state_list states = children(state);
-		for(scxml_parser::state_list::const_iterator i = states.begin(); i != states.end(); ++i) {
-			out << tab << "class state_" << (*i)->id << ';' << endl;
-		}
-	}*/
 
 	out << tab << "class " << state_classname << ": public ";
-//	if ( parallel_state ) out << state_parallel_t();
-  /* else*/
+
    out << state_composite_t();
 
    out << '<' << state_classname << ", " << parent;
 
-  /* if(parallel_state) {
-		scxml_parser::state_list states = children(state);
-		for(scxml_parser::state_list::const_iterator i = states.begin(); i != states.end(); ++i) {
-			out << ", state_" << (*i)->id;
-		}
-	}*/
-	out << '>' << endl;
+   out << ">";
+   
+   out << endl;
 
 	out << tab << "{" << endl;
 
@@ -489,28 +495,50 @@ void cpp_output::gen_state(const scxml_parser::state &state)
 
    // One event can owned many transitions (with different conditions)
    std::map< std::string, std::vector<std::string> > mth;
+   std::map< std::string, std::string> mth_async;
    bool isUnconditionalTransitions = false;
    bool isAutotransitional = true;
 	//events
-
+   bool async_autotransition = false;
    // t is iterator to [shared_ptr of transition]
 	for (scxml_parser::transition_list::const_iterator t = state.transitions.begin(); t != state.transitions.end(); ++t) {
 		string target;
 		string target_classname = state_classname;
-		string event;
+		string transitionName;
+      string transitionEventName;
 
 		if ( t->get()->target.size() ) {
 			target = "sc.m_state_" + t->get()->target.front(); //todo handle multiple targets
 			target_classname = "state_" + t->get()->target.front(); //todo handle multiple targets
 		}
-		if(t->get()->event) {
-         isAutotransitional = false;
-			event = "event_" + *t->get()->event;
+
+      bool async = false;
+      
+		if (t->get()->event) {
+         std::string trig_event_name = *t->get()->event;
+         async = std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end();
+         std::string::const_iterator it = trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
+
+
+        // async_autotransition |= async && trig_event_name == "";
+
+         if (async && trig_event_name == "") {
+            async_autotransition = true;
+            isUnconditionalTransitions = true;
+            isAutotransitional = false;
+            transitionName = "unconditional";
+         }
+         else {
+            isAutotransitional = false;
+
+            transitionName = "trigger_" + trig_event_name;
+            transitionEventName = "event_" + trig_event_name;
+         }
 		}
 		else {
          isUnconditionalTransitions = true;
          
-			event = "unconditional";
+         transitionName = "unconditional";
 		}
 
       std::string s = t->get()->condition;
@@ -527,14 +555,18 @@ void cpp_output::gen_state(const scxml_parser::state &state)
       t->get()->index = mTransitionIndex;
 		if( target.size() ) {
 			// normal transition
-         mth[event].push_back( s + "return transition<" + std::to_string(mTransitionIndex) + ", &state::" + event + ", " + state_classname + ", " + target_classname + ">()( this, " + target + ", sc );" );
-         t->get()->event_fmt = "state::" + event;
+         mth[transitionName].push_back(s + "return transition<" + std::to_string(mTransitionIndex) + ", &state::" + transitionName + ", " + state_classname + ", " + target_classname + ">()( this, " + target + ", sc );");
+         t->get()->event_fmt = "state::" + transitionName;
          t->get()->source_fmt = state_classname;
          t->get()->dest_fmt = target_classname;
+
+         if (async && transitionName != "unconditional") {
+            mth_async[transitionEventName] = "return sc.asyncTriggerInvoker.makeAsyncCall( &state::" + transitionName + " );";
+         }
 		}
 		else {
 			// transition without target
-         mth[event].push_back( s + "return transition<" + std::to_string(mTransitionIndex) + ", &state::" + event + ", " + state_classname + ">()( this, sc );" );
+         mth[transitionName].push_back(s + "return transition<" + std::to_string(mTransitionIndex) + ", &state::" + transitionName + ", " + state_classname + ">()( this, sc );");
 		}
 	}
    
@@ -542,7 +574,9 @@ void cpp_output::gen_state(const scxml_parser::state &state)
    {
       std::vector<std::string>& v = it->second;
 
-      out << tab << tab << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) {" << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) {" << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
       const std::vector<std::pair<std::string, std::string> >& dm = sc.sc().datamodel;
       typedef const std::pair<std::string, std::string> var_pair;
       BOOST_FOREACH( var_pair& p, dm )
@@ -569,6 +603,30 @@ void cpp_output::gen_state(const scxml_parser::state &state)
       out << tab << tab << "}" << endl;
    }
 
+   if (isUnconditionalTransitions && async_autotransition)
+   {
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << tab << tab << "inline virtual state* unconditional_async(" << classname() << " &sc) {" << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << tab << tab << tab << "return sc.asyncTriggerInvoker.makeAsyncUCall(&state::unconditional);" << endl;
+      out << tab << tab << "}" << endl;
+   }
+
+   for (std::map< std::string, std::string >::iterator it = mth_async.begin(); it != mth_async.end(); it++)
+   {
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) { " << it->second << " }" << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   }
+
+   if ( isAsyncTransitions(state) ) {
+      out << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << tab << tab << "inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }" << endl;
+      out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+      out << endl;
+   }
+
    if ( !isAutotransitional && !isUnconditionalTransitions )
    {
       out << tab << tab << "virtual state* unconditional( " << classname() << " &sc ) { return 0; }" << std::endl;
@@ -576,6 +634,73 @@ void cpp_output::gen_state(const scxml_parser::state &state)
       
 	out << tab << "} m_" << prefix << "state_" << state.id << ";" << endl;
 	out << endl;
+}
+
+void cpp_output::gen_async_event(void)
+{
+   out << "private: " << endl;
+   out << tab << "class CPAsyncEventTransitionData" << endl;
+   out << tab << "{" << endl;
+   out << tab << "public:" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "CPAsyncEventTransitionData( " << classname() << "& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl << endl;
+
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl << endl;
+
+   out << tab << "private:" << endl;
+   out << tab << tab << classname() << "& mFSM;" << endl;
+   out << tab << tab << "event mTrigger;" << endl;
+   out << tab << "};" << endl << endl;
+
+   out << tab << "DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );" << endl << endl;
+
+
+   out << tab << "class CPAsyncTriggerInvoker : public IPAsyncEventConsumer" << endl;
+   out << tab << "{" << endl;
+   out << tab << "public:" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "CPAsyncTriggerInvoker( " << classname() << "& fsm ) : mFsm( fsm ) { /* none */ }" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl << endl;
+
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "inline state* makeAsyncCall( const event trigger ) {" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );" << endl;
+   out << tab << tab << tab << "e->setConsumer( this );" << endl;
+   out << tab << tab << tab << "e->send();" << endl;
+   out << tab << tab << tab << "return 0;" << endl;
+   out << tab << tab << "}" << endl << endl;
+
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "inline state* makeAsyncUCall( const event trigger ) {" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );" << endl;
+   out << tab << tab << tab << "e->setConsumer( this );" << endl;
+   out << tab << tab << tab << "e->send();" << endl;
+   out << tab << tab << tab << "return (state*)0xFFFFFF;" << endl;
+   out << tab << tab << "}" << endl << endl;
+
+   out << tab << "protected:" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << "inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl << endl;
+
+   out << tab << "private:" << endl;
+   out << tab << tab << classname() << "& mFsm;" << endl;
+   out << tab << "} asyncTriggerInvoker;" << endl << endl;
+
+//   out << tab << "// --------------------------------------------------------------------------" << endl;
+//   out << tab << "template <typename T> static state* makeAsyncCall( CTestFSM& fsm, T* consumer, const event trigger )" << endl;
+//   out << tab << "// --------------------------------------------------------------------------" << endl;
+//   out << tab << "{" << endl;
+//   out << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData( fsm, trigger ) );" << endl;
+//   out << tab << tab << "e->setConsumer( consumer );" << endl;
+//   out << tab << tab << "e->send();" << endl;
+//   out << tab << tab << "return 0;" << endl;
+//   out << tab << "}" << endl << endl;
 }
 
 void cpp_output::gen_sc()
@@ -589,6 +714,9 @@ void cpp_output::gen_sc()
 
 	gen_model_base();
 	gen_state_base();
+	if (opt.withAsyncs) {
+	   gen_async_event();
+	}
 	gen_state_actions_base();
 	gen_state_composite_base();
 	gen_state_parallel_base();
@@ -618,6 +746,15 @@ void cpp_output::gen_sc()
 		out << tab << tab << "if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;" << endl;
 		out << tab << tab << "return next_state;" << endl;
 		out << tab << '}' << endl;
+
+      if (opt.withAsyncs) {
+         out << tab << "// --------------------------------------------------------------------------" << endl;
+         out << tab << "bool dispatch_uasync( event e )" << endl;
+         out << tab << "// --------------------------------------------------------------------------" << endl;
+         out << tab << "{" << endl;
+         out << tab << tab << "return (cur_state->*e)(*this) == (state*)0xFFFFFF;" << endl;
+         out << tab << "}" << endl;
+      }
 	}
 	out << endl;
 	out << "public:" << endl;
@@ -628,7 +765,10 @@ void cpp_output::gen_sc()
 	out << tab << tab << "bool cont = dispatch_event( e );" << endl;
 	out << tab << tab << "while ( cont ) {" << endl;
 	out << tab << tab << tab << "if ( (cont = dispatch_event(&state::initial)) );" << endl;
-	out << tab << tab << tab << "else if ( (cont = dispatch_event(&state::unconditional)) );" << endl;
+   if (opt.withAsyncs) {
+      out << tab << tab << tab << "else if ( dispatch_uasync(&state::unconditional_async) );" << endl;
+   }
+	out << tab << tab << tab << "else if ( cont = dispatch_event(&state::unconditional) );" << endl;
 	//out << tab << tab << tab << "else if (event_queue.size()) cont = dispatch_event(event_queue.front()), event_queue.pop();" << endl;
 	out << tab << tab << tab << "else break;" << endl;
 	out << tab << tab << "}" << endl;
@@ -639,6 +779,9 @@ void cpp_output::gen_sc()
    out << tab << "// --------------------------------------------------------------------------" << endl;
 	out << tab << classname() << "( " << "I" << UpperFirstLetter(sc.sc().name) + "ActionHandler* pActionHandler" << " )";
 	if(!sc.using_parallel) out << " : cur_state( &m_scxml )";
+   if (opt.withAsyncs) {
+      out <<  ", asyncTriggerInvoker( *this )";
+   }
 	out << endl;
    out << tab << "// --------------------------------------------------------------------------" << endl;
 
@@ -663,7 +806,10 @@ void cpp_output::gen_sc()
 	out << tab << "{" << endl;
 
 	const int sz = sc.sc().initial.size();
-	out << tab << tab << state_t() << "* initial( " << classname() << "&sc ) { return transition";
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << state_t() << "* initial( " << classname() << "&sc ) {" << endl;
+   out << tab << tab << "// --------------------------------------------------------------------------" << endl;
+   out << tab << tab << tab << "return transition";
 	if(sz > 1) out << sz;
 	out << "<0, &state::initial, scxml";
 	for(int i = 0; i < sz; ++i) out << ", state_" << sc.sc().initial[i];
@@ -671,7 +817,7 @@ void cpp_output::gen_sc()
 	for(int i = 0; i < sz; ++i) out << ", sc.m_state_" << sc.sc().initial[i];
 	out << ", sc ); }" << endl;
 
-	out << tab << "} m_scxml;" << endl;
+   out << tab << tab << "} m_scxml;" << endl;
 	out << endl;
 	
 	// states
@@ -729,7 +875,10 @@ void cpp_output::gen()
    out << endl;
 
 	out << "#include <typeinfo>" << endl;
-	out << "#include <memory>" << endl;
+//	out << "#include <memory>" << endl;
+   if (opt.withAsyncs) {
+      out << "#include \"Environment/Environment.hpp\"" << endl;
+   }
 	if(opt.debug) out << "#include <iostream>" << endl;
 
   /* BOOST_FOREACH( const std::string& s, sc.sc().includes )
@@ -769,8 +918,6 @@ void cpp_output::gen()
 	// end of include guard
    out << "/* ************************************************************************ */" << endl;
  	out << "#endif // AUTOFSM_" << boost::to_upper_copy(sc.sc().name) << "_HPP" << endl;
-
-   gen_cpp();
 }
 
 void cpp_output::gen_ahi_header()
@@ -830,8 +977,8 @@ void cpp_output::gen_ahd_header()
       scxml_parser::state state = *s->get();
       string stateName = UpperFirstLetter(state.id);
 
-      out << tab << "virtual void state" << stateName << "Enter( " << classname() << "::data_model &m ) { /* default */ }" << endl;
-      out << tab << "virtual void state" << stateName << "Exit( " << classname() << "::data_model &m ) { /* default */ }" << endl;
+      out << tab << "virtual void state" << stateName << "Enter( " << classname() << "::data_model &m ) { (void)m; /* default */ }" << endl;
+      out << tab << "virtual void state" << stateName << "Exit( " << classname() << "::data_model &m ) { (void)m; /* default */ }" << endl;
 	}
 
    out << endl;
@@ -851,7 +998,14 @@ void cpp_output::gen_ahd_header()
          params = ", " + params;
       }
 
-      out << tab << "virtual void on" << UpperFirstLetter(t_action.name) << "( " << classname() << "::data_model& m" << params << " ) { /* default */ }" << endl;
+	  out << tab << "virtual void on" << UpperFirstLetter(t_action.name) << "( " << classname() << "::data_model& m" << params << " ) {" << endl;
+	  out << tab << tab << "(void)m;" << endl;
+	  for (std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it) {
+		  scxml_parser::param p = *arg_it;
+		  out << tab << tab << "(void)" + p.name + ";" << endl;
+	  }
+		  
+      out << tab << "}" << endl;
    }
 
    out << endl;
@@ -862,38 +1016,17 @@ void cpp_output::gen_ahd_header()
    out << endl;
 }
 
-void cpp_output::gen_cpp()
-{
-   out_cpp << "/*" << endl;
-   out_cpp << " *                                     escxmlcc product" << endl;
-   out_cpp << " *                                           fsm" << endl;
-   out_cpp << " *" << endl;
-   out_cpp << " * @ingroup Autogenerated::FSM" << endl;
-   out_cpp << " * @author  escxmlcc" << endl;
-   out_cpp << " * " << endl;
-   out_cpp << " * @brief   This program was generated by escxmlcc fsm compiler written by Yuriy Gurin. This is" << endl;
-   out_cpp << " *          an extended version of original scxmlcc compiler written by Jan Pedersen. For more" << endl;
-   out_cpp << " *          information see project website http://escxmlcc.sourceforge.net" << endl;
-   out_cpp << " */" << endl;
-	out_cpp << endl;
-
-	out_cpp << "#include \"" << sc.sc().name << ".hpp\"" << endl;
-   out_cpp << endl;
-
- //  gen_template_calls();
-}
-
 std::string getMethodPartFromExecutableContent( std::string& content )
 {
    std::string result = "";
    for ( std::string::const_iterator it = content.begin(); it != content.end(); ++it ) {
-      if ( std::isalnum(*it, locale()) ) result += *it;
+      if ( std::isalnum(*it, locale()) || *it == '_' ) result += *it;
       else break;
    }
    return result;
 }
 
-string& trim(string& str)
+string trim(string str)
 {
   str.erase(str.begin(), find_if(str.begin(), str.end(),
     [](char& ch)->bool { return !isspace(ch); }));
@@ -909,8 +1042,27 @@ void parseExecutableMethodCall( std::string content, std::string& method, std::s
    std::string::size_type first_quote = content.find('(' );
    std::string::size_type last_quote = content.rfind( ')' );
 
-   std::string x = content.substr( first_quote + 1, last_quote - first_quote - 1  ) ;
-   params =  trim(  x );
+   const std::string subst = content.substr( first_quote + 1, last_quote - first_quote - 1  );
+   params =  trim( subst );
+}
+
+std::vector<std::string> split_string(const std::string& str,
+   const std::string& delimiter)
+{
+   std::vector<std::string> strings;
+
+   std::string::size_type pos = 0;
+   std::string::size_type prev = 0;
+   while ((pos = str.find(delimiter, prev)) != std::string::npos)
+   {
+      strings.push_back(str.substr(prev, pos - prev));
+      prev = pos + 1;
+   }
+
+   // To get the last substring (or only, if delimiter is not found)
+   strings.push_back(str.substr(prev));
+
+   return strings;
 }
 
 void cpp_output:: gen_template_calls()
@@ -943,17 +1095,25 @@ void cpp_output:: gen_template_calls()
          {
             std::string method;
             std::string params;
-            parseExecutableMethodCall( it->get()->executable_content, method, params );
+
+            std::vector<std::string> exe = split_string(it->get()->executable_content, "\n");
+
+
+            
             out << "// --------------------------------------------------------------------------" << endl;
             out << "template<> inline void " << classname() << "::transition_actions<" << it->get()->index << ", &" << classname() << "::" << it->get()->event_fmt << ", " << classname() << "::" << it->get()->source_fmt << ", " <<
                classname() << "::" << it->get()->dest_fmt << ">::enter(" << classname() << "::data_model& m )" << endl;
             out << "// --------------------------------------------------------------------------" << endl;
             out << "{" << endl;
-            out << tab << "m.actionHandler->on" << UpperFirstLetter( method ) << "( m";
-            if ( params == "" ) {
-               out << " );" << endl;
-            } else {
-               out << ", " << params << " );" << endl;
+            for (std::string m : exe) {
+               parseExecutableMethodCall(m, method, params);
+               out << tab << "m.actionHandler->on" << UpperFirstLetter(method) << "( m";
+               if (params == "") {
+                  out << " );" << endl;
+               }
+               else {
+                  out << ", " << params << " );" << endl;
+               }
             }
             out << "}" << endl;
             out << endl;
