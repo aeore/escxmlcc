@@ -768,7 +768,7 @@ void cpp_output::gen_sc()
    if (opt.withAsyncs) {
       out << tab << tab << tab << "else if ( dispatch_uasync(&state::unconditional_async) );" << endl;
    }
-	out << tab << tab << tab << "else if ( cont = dispatch_event(&state::unconditional) );" << endl;
+	out << tab << tab << tab << "else if ( (cont = dispatch_event(&state::unconditional)) );" << endl;
 	//out << tab << tab << tab << "else if (event_queue.size()) cont = dispatch_event(event_queue.front()), event_queue.pop();" << endl;
 	out << tab << tab << tab << "else break;" << endl;
 	out << tab << tab << "}" << endl;
