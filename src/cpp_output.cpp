@@ -629,7 +629,7 @@ void cpp_output::gen_state(const scxml_parser::state &state)
 
    if ( !isAutotransitional && !isUnconditionalTransitions )
    {
-      out << tab << tab << "virtual state* unconditional( " << classname() << " &sc ) { return 0; }" << std::endl;
+      out << tab << tab << "virtual state* unconditional( " << classname() << "& ) { return 0; }" << std::endl;
    }
       
 	out << tab << "} m_" << prefix << "state_" << state.id << ";" << endl;
