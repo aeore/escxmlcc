@@ -9,8 +9,8 @@
 #endif
 
 #include <cppunit/Outputter.h>
-#include <cppunit/portability/CppUnitDeque.h>
-#include <cppunit/portability/CppUnitMap.h>
+#include <deque>
+#include <map>
 #include <cppunit/portability/Stream.h>
 
 
@@ -46,13 +46,13 @@ public:
    */
   XmlOutputter( TestResultCollector *result,
                 OStream &stream,
-                std::string encoding = std::string("ISO-8859-1") );
+                const std::string& encoding = std::string("ISO-8859-1") );
 
   /// Destructor.
-  virtual ~XmlOutputter();
+  virtual ~XmlOutputter() override;
 
   /*! \brief Adds the specified hook to the outputter.
-   * \param hook Hook to add. Must not be \c NULL.
+   * \param hook Hook to add. Must not be \c nullptr.
    */
   virtual void addHook( XmlOutputterHook *hook );
 
@@ -66,7 +66,7 @@ public:
    * Refer to examples/cppunittest/XmlOutputterTest.cpp for example
    * of use and XML document structure.
    */
-  virtual void write();
+  virtual void write() override;
 
   /*! \brief Sets the XSL style sheet used.
    *
@@ -85,7 +85,7 @@ public:
    */
   virtual void setStandalone( bool standalone );
 
-  typedef CppUnitMap<Test *,TestFailure*, std::less<Test*> > FailedTests;
+  typedef std::map<Test *,TestFailure*, std::less<Test*> > FailedTests;
 
   /*! \brief Sets the root element and adds its children.
    *
@@ -137,7 +137,7 @@ protected:
   virtual void fillFailedTestsMap( FailedTests &failedTests );
 
 protected:
-  typedef CppUnitDeque<XmlOutputterHook *> Hooks;
+  typedef std::deque<XmlOutputterHook *> Hooks;
 
   TestResultCollector *m_result;
   OStream &m_stream;

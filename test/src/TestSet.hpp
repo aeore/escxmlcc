@@ -69,7 +69,9 @@ class TestSet : public CppUnit::TestFixture
       CPPUNIT_TEST( testTHCluster3 );
       CPPUNIT_TEST( testTHCluster4 );
       CPPUNIT_TEST( testTHTwoWays );
-      CPPUNIT_TEST( testAsyncNameTransition_1 );
+      
+      // asyncs will not be supported
+      /*CPPUNIT_TEST( testAsyncNameTransition_1 );
       CPPUNIT_TEST( testAsyncNameTransition_2 );
       CPPUNIT_TEST( testAsyncNameTransition_3 );
       CPPUNIT_TEST( testAsyncNameTransition_4 );
@@ -84,7 +86,7 @@ class TestSet : public CppUnit::TestFixture
       CPPUNIT_TEST( testAsyncNameTransition_13 );
       CPPUNIT_TEST( testAsyncNameTransition_14 );
       CPPUNIT_TEST( testAsyncNameTransition_15 );
-      CPPUNIT_TEST( testAsyncNameTransition_16 );
+      CPPUNIT_TEST( testAsyncNameTransition_16 );*/
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -131,7 +133,7 @@ public:
    void testTHCluster3( void );
    void testTHCluster4( void );
    void testTHTwoWays( void );
-   void testAsyncNameTransition_1( void );
+   /*void testAsyncNameTransition_1( void );
    void testAsyncNameTransition_2( void );
    void testAsyncNameTransition_3( void );
    void testAsyncNameTransition_4( void );
@@ -146,7 +148,7 @@ public:
    void testAsyncNameTransition_13( void );
    void testAsyncNameTransition_14( void );
    void testAsyncNameTransition_15( void );
-   void testAsyncNameTransition_16( void );
+   void testAsyncNameTransition_16( void );*/
 
    static Sequence sequence;
 };

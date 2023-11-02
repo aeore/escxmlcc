@@ -17,62 +17,62 @@
 // --------------------------------------------------------------------------
 
 #include "TestSet.hpp"
-#include "manifests\gen\one_state.hpp"
-#include "manifests\gen\two_states_uncond.hpp"
-#include "manifests\gen\two_states_event.hpp"
-#include "manifests\gen\three_dr_ev.hpp"
-#include "manifests\gen\three_event_bicyclic.hpp"
-#include "manifests\gen\two_event_bicyclic_with_init.hpp"
-#include "manifests\gen\two_event_bicyclic_with_init_diffevents.hpp"
-#include "manifests\gen\singlenode_selftrans_event.hpp"
-#include "manifests\gen\three_fork.hpp"
-#include "manifests\gen\three_thiangle_with_back.hpp"
-#include "manifests\gen\three_rep_quiteandreturn.hpp"
-#include "manifests\gen\square_events.hpp"
-#include "manifests\gen\star_and_cycling.hpp"
-#include "manifests\gen\semievent_and_conditions.hpp"
-#include "manifests\gen\counter.hpp"
-#include "manifests\gen\counter_transincr.hpp"
-#include "manifests\gen\diff_cond.hpp"
-#include "manifests\gen\cluster_onenode.hpp"
-#include "manifests\gen\cluster_twonodes.hpp"
-#include "manifests\gen\cluster_with_exit.hpp"
-#include "manifests\gen\cluster_twonodes_ext_events.hpp"
-#include "manifests\gen\cluster_multinodes.hpp"
-#include "manifests\gen\cluster_multinodes_2.hpp"
-#include "manifests\gen\cluster_multinodes_3.hpp"
-#include "manifests\gen\cluster_multinodes_4.hpp"
-#include "manifests\gen\cluster_2_multinodes.hpp"
-#include "manifests\gen\cluster_rec2_multinodes.hpp"
-#include "manifests\gen\cluster_rec2_multinodes_1.hpp"
-#include "manifests\gen\cluster_rec2_multinodes_2.hpp"
-#include "manifests\gen\cluster_rec2_multinodes_3.hpp"
-#include "manifests\gen\cluster_rec2_multinodes_4.hpp"
-#include "manifests\gen\cluster_rec2_multinodes_5.hpp"
-#include "manifests\gen\include_1.hpp"
-#include "manifests\gen\th_simple.hpp"
-#include "manifests\gen\th_simple_param.hpp"
-#include "manifests\gen\th_cluster_1.hpp"
-#include "manifests\gen\th_cluster_2.hpp"
-#include "manifests\gen\th_cluster_3.hpp"
-#include "manifests\gen\th_cluster_4.hpp"
-#include "manifests\gen\th_twoways.hpp"
-#include "manifests\gen\async_transition_1.hpp"
-#include "manifests\gen\async_transition_2.hpp"
-#include "manifests\gen\async_transition_3.hpp"
-#include "manifests\gen\async_transition_4.hpp"
-#include "manifests\gen\async_transition_5.hpp"
-#include "manifests\gen\async_transition_6.hpp"
-#include "manifests\gen\async_transition_7.hpp"
-#include "manifests\gen\async_transition_8.hpp"
-#include "manifests\gen\async_transition_9.hpp"
-#include "manifests\gen\async_transition_10.hpp"
-#include "manifests\gen\async_transition_11.hpp"
-#include "manifests\gen\async_transition_12.hpp"
-#include "manifests\gen\async_transition_13.hpp"
-#include "manifests\gen\async_transition_14.hpp"
-#include "manifests\gen\async_transition_15.hpp"
-#include "manifests\gen\async_transition_16.hpp"
+#include "src-gen/one_state.hpp"
+#include "src-gen/two_states_uncond.hpp"
+#include "src-gen/two_states_event.hpp"
+#include "src-gen/three_dr_ev.hpp"
+#include "src-gen/three_event_bicyclic.hpp"
+#include "src-gen/two_event_bicyclic_with_init.hpp"
+#include "src-gen/two_event_bicyclic_with_init_diffevents.hpp"
+#include "src-gen/singlenode_selftrans_event.hpp"
+#include "src-gen/three_fork.hpp"
+#include "src-gen/three_thiangle_with_back.hpp"
+#include "src-gen/three_rep_quiteandreturn.hpp"
+#include "src-gen/square_events.hpp"
+#include "src-gen/star_and_cycling.hpp"
+#include "src-gen/semievent_and_conditions.hpp"
+#include "src-gen/counter.hpp"
+#include "src-gen/counter_transincr.hpp"
+#include "src-gen/diff_cond.hpp"
+#include "src-gen/cluster_onenode.hpp"
+#include "src-gen/cluster_twonodes.hpp"
+#include "src-gen/cluster_with_exit.hpp"
+#include "src-gen/cluster_twonodes_ext_events.hpp"
+#include "src-gen/cluster_multinodes.hpp"
+#include "src-gen/cluster_multinodes_2.hpp"
+#include "src-gen/cluster_multinodes_3.hpp"
+#include "src-gen/cluster_multinodes_4.hpp"
+#include "src-gen/cluster_2_multinodes.hpp"
+#include "src-gen/cluster_rec2_multinodes.hpp"
+#include "src-gen/cluster_rec2_multinodes_1.hpp"
+#include "src-gen/cluster_rec2_multinodes_2.hpp"
+#include "src-gen/cluster_rec2_multinodes_3.hpp"
+#include "src-gen/cluster_rec2_multinodes_4.hpp"
+#include "src-gen/cluster_rec2_multinodes_5.hpp"
+#include "src-gen/include_1.hpp"
+#include "src-gen/th_simple.hpp"
+#include "src-gen/th_simple_param.hpp"
+#include "src-gen/th_cluster_1.hpp"
+#include "src-gen/th_cluster_2.hpp"
+#include "src-gen/th_cluster_3.hpp"
+#include "src-gen/th_cluster_4.hpp"
+#include "src-gen/th_twoways.hpp"
+/*#include "src-gen/async_transition_1.hpp"
+#include "src-gen/async_transition_2.hpp"
+#include "src-gen/async_transition_3.hpp"
+#include "src-gen/async_transition_4.hpp"
+#include "src-gen/async_transition_5.hpp"
+#include "src-gen/async_transition_6.hpp"
+#include "src-gen/async_transition_7.hpp"
+#include "src-gen/async_transition_8.hpp"
+#include "src-gen/async_transition_9.hpp"
+#include "src-gen/async_transition_10.hpp"
+#include "src-gen/async_transition_11.hpp"
+#include "src-gen/async_transition_12.hpp"
+#include "src-gen/async_transition_13.hpp"
+#include "src-gen/async_transition_14.hpp"
+#include "src-gen/async_transition_15.hpp"
+#include "src-gen/async_transition_16.hpp"*/
 
 // --------------------------------------------------------------------------
 // Code implementation
@@ -89,7 +89,6 @@ void TestSet::tearDown()
 // -------------------------------------------------------------------------
 {
 }
- 
 
 // --------------------------------------------------------------------------
 DEFINE_TEST_CASE( One_state,
@@ -128,8 +127,7 @@ void TestSet::testTwoStatesEvent( void )
 
    sequence.enter( "Init" ).check();
 
-   CTwo_states_eventFSM::event e = &CTwo_states_eventFSM::state::trigger_e;
-   chart.dispatch(e);
+   chart.dispatch(&CTwo_states_eventFSM::state::trigger_e);
    sequence.exit( "Init" ).enter( "Node" ).check();
 }
 
@@ -500,7 +498,7 @@ void TestSet::testSemieventAndConditions( void )
 DEFINE_TEST_CASE( Counter,
    STATE( Counter, Init )
    virtual void stateCEnter( CCounterFSM::data_model& m ) {  m.value++; TestSet::sequence.action( "state_C::enter" ); }
-   virtual void stateCExit( CCounterFSM::data_model& m ) { TestSet::sequence.action( "state_C::exit" ); }
+   virtual void stateCExit( CCounterFSM::data_model& ) { TestSet::sequence.action( "state_C::exit" ); }
    STATE( Counter, F )
 );
 void TestSet::testCounter( void )
@@ -1176,7 +1174,7 @@ void TestSet::testTHTwoWays(void)
    chart.dispatch(&CTh_twowaysFSM::state::trigger_w);
    sequence.exit("A").enter("C").exit("C").tr_action("Bar").enter("D").exit("D").enter("A").check();
 }
-
+/*
 ENV_CASE( Async_transition_1,
    ENV_STATE( Async_transition_1, Init )
    ENV_STATE( Async_transition_1, A )
@@ -1443,4 +1441,4 @@ void TestSet::testAsyncNameTransition_16(void)
          .exit("F").exit("Cluster_2").exit("Cluster").enter("G")
       );
    }
-}
+}*/

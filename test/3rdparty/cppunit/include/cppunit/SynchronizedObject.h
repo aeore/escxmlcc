@@ -36,7 +36,7 @@ public:
 
   /*! Constructs a SynchronizedObject object.
    */
-  SynchronizedObject( SynchronizationObject *syncObject =0 );
+  SynchronizedObject( SynchronizationObject *syncObject = nullptr );
 
   /// Destructor.
   virtual ~SynchronizedObject();
@@ -50,15 +50,21 @@ protected:
 
   public:
     ExclusiveZone( SynchronizationObject *syncObject ) 
-        : m_syncObject( syncObject ) 
+        : m_syncObject( syncObject )
     { 
-      m_syncObject->lock(); 
+      m_syncObject->lock();
     }
 
     ~ExclusiveZone() 
     { 
-      m_syncObject->unlock (); 
+      m_syncObject->unlock ();
     }
+  private:
+    /// Prevents the use of the copy constructor.
+    ExclusiveZone( const ExclusiveZone& );
+
+    /// Prevents the use of the copy operator.
+    ExclusiveZone& operator=( const ExclusiveZone& );
   };
 
   virtual void setSynchronizationObject( SynchronizationObject *syncObject );

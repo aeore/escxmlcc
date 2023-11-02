@@ -9,7 +9,7 @@
 #endif
 
 #include <cppunit/TestComposite.h>
-#include <cppunit/portability/CppUnitVector.h>
+#include <vector>
 
 CPPUNIT_NS_BEGIN
 
@@ -44,10 +44,10 @@ public:
    */
   TestSuite( std::string name = "" );
 
-  ~TestSuite();
+  ~TestSuite() override;
 
   /*! Adds the specified test to the suite.
-   * \param test Test to add. Must not be \c NULL.
+   * \param test Test to add. Must not be \c nullptr.
     */
   void addTest( Test *test );
 
@@ -56,18 +56,18 @@ public:
    *             TestComposite interface instead.
    * \return Reference on a vector that contains the tests of the suite.
    */
-  const CppUnitVector<Test *> &getTests() const;
+  const std::vector<Test *> &getTests() const;
 
   /*! Destroys all the tests of the suite.
    */
   virtual void deleteContents();
 
-  int getChildTestCount() const;
+  int getChildTestCount() const override;
 
-  Test *doGetChildTestAt( int index ) const;
+  Test *doGetChildTestAt( int index ) const override;
 
 private:
-  CppUnitVector<Test *> m_tests;
+  std::vector<Test *> m_tests;
 };
 
 

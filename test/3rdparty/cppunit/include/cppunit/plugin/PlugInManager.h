@@ -40,7 +40,7 @@ public:
    * \param libraryFileName Name of the file that contains the TestPlugIn.
    * \param parameters List of string passed to the plug-in.
    * \return Pointer on the DynamicLibraryManager associated to the library.
-   *         Valid until the library is unloaded. Never \c NULL.
+   *         Valid until the library is unloaded. Never \c nullptr.
    * \exception DynamicLibraryManagerException is thrown if an error occurs during loading.
    */
   void load( const std::string &libraryFileName,
@@ -96,7 +96,7 @@ private:
   void operator =( const PlugInManager &copy );
 
 private:
-  typedef CppUnitDeque<PlugInInfo> PlugIns;
+  typedef std::deque<PlugInInfo> PlugIns;
   PlugIns m_plugIns;
 };
 

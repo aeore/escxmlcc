@@ -473,7 +473,6 @@ void cpp_output::gen_state(const scxml_parser::state &state)
 
 	string state_classname = prefix + "state_" + state.id;
 
-
 	out << tab << "class " << state_classname << ": public ";
 
    out << state_composite_t();
@@ -544,7 +543,9 @@ void cpp_output::gen_state(const scxml_parser::state &state)
       std::string s = t->get()->condition;
       if ( s != "" )
       {
-         s = "if ( " + s + " ) ";
+         Condition c(s);
+         c.fixCondition(sc.sc().datamodel);
+         s = "if ( " + c.getCondition() + " ) ";
       }
       else
       {
@@ -577,22 +578,6 @@ void cpp_output::gen_state(const scxml_parser::state &state)
       out << tab << tab << "// --------------------------------------------------------------------------" << endl;
       out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) {" << endl;
       out << tab << tab << "// --------------------------------------------------------------------------" << endl;
-      const std::vector<std::pair<std::string, std::string> >& dm = sc.sc().datamodel;
-      typedef const std::pair<std::string, std::string> var_pair;
-      BOOST_FOREACH( var_pair& p, dm )
-      {
-         // if p.second in ifs 
-         // Searching params / todo: strict
-         bool isw = false;
-         for ( std::vector<std::string>::iterator i = v.begin(); i != v.end(); i++ )
-         {
-            string s = *i;
-            if ( s.find(p.second) != std::string::npos ) { isw = true; break;}
-         }
-
-         if (isw)
-            out << tab << tab << tab << p.first << "& " << p.second << " = sc.model." << p.second << ";" << endl;
-      }
 
       for ( std::vector<std::string>::iterator i = v.begin(); i != v.end(); i++ )
       {

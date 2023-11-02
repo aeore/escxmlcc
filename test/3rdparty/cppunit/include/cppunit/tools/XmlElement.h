@@ -8,7 +8,7 @@
 #pragma warning( disable: 4251 )  // X needs to have dll-interface to be used by clients of class Z
 #endif
 
-#include <cppunit/portability/CppUnitDeque.h>
+#include <deque>
 #include <string>
 
 
@@ -90,7 +90,7 @@ public:
                      int numericValue );
 
   /*! \brief Adds a child element to the element.
-   * \param element Child element to add. Must not be \c NULL.
+   * \param element Child element to add. Must not be \c nullptr.
    */
   void addElement( XmlElement *element );
 
@@ -101,7 +101,7 @@ public:
 
   /*! \brief Returns the child element at the specified index.
    * \param index Zero based index of the element to return.
-   * \returns Element at the specified index. Never \c NULL.
+   * \returns Element at the specified index. Never \c nullptr.
    * \exception std::invalid_argument if \a index < 0 or index >= elementCount().
    */
   XmlElement *elementAt( int index ) const;
@@ -131,10 +131,10 @@ private:
   std::string m_name;
   std::string m_content;
 
-  typedef CppUnitDeque<Attribute> Attributes;
+  typedef std::deque<Attribute> Attributes;
   Attributes m_attributes;
 
-  typedef CppUnitDeque<XmlElement *> Elements;
+  typedef std::deque<XmlElement *> Elements;
   Elements m_elements;
 };
 

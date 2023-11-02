@@ -13,24 +13,31 @@ CPPUNIT_NS_BEGIN
  * of a test class without subclassing the test.  Instead, one can
  * subclass the decorater and use it to wrap the test class.
  *
- * Does not assume ownership of the test it decorates
+ * Assumes ownership of the test it decorates
  */ 
 class CPPUNIT_API TestCaseDecorator : public TestCase
 {
 public:
   TestCaseDecorator( TestCase *test );
-  ~TestCaseDecorator();
+  ~TestCaseDecorator() override;
 
-  std::string getName() const;
+  std::string getName() const override;
 
-  void setUp();
+  void setUp() override;
 
-  void tearDown();
+  void tearDown() override;
 
-  void runTest();
+  void runTest() override;
 
 protected:
   TestCase *m_test;
+
+private:
+
+  //prevent the creation of copy c'tor and operator=
+  TestCaseDecorator( const TestCaseDecorator& );
+  TestCaseDecorator& operator=( const TestCaseDecorator& );
+
 };
 
 
