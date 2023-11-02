@@ -403,7 +403,7 @@ void cpp_output::gen_state_base()
 	for (set<string>::const_iterator i = event_set.begin(); i != event_set.end(); ++i) {
       std::string trig_event_name = *i;
       bool been = std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end();
-      std::string::const_iterator it = trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
+      trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
       out << tab << tab << "virtual " << state_t() << "* trigger_" << trig_event_name << "( " << classname() << "& ) { return 0; }" << endl;
       if (been)
        out << tab << tab << "virtual " << state_t() << "* event_" << trig_event_name << "( " << classname() << "& ) { return 0; }" << endl;
@@ -517,7 +517,7 @@ void cpp_output::gen_state(const scxml_parser::state &state)
 		if (t->get()->event) {
          std::string trig_event_name = *t->get()->event;
          async = std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end();
-         std::string::const_iterator it = trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
+         trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
 
 
         // async_autotransition |= async && trig_event_name == "";

@@ -117,7 +117,7 @@ void scxml_parser::parse_scxml( const ptree &pt )
 			}
 		}
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: scxml: " << e.what() << endl;
 		exit(1);
 	}
@@ -188,7 +188,7 @@ void scxml_parser::parse_header( const boost::property_tree::ptree &pt )
    m_scxml.header = headerContext;
 }
 
-void scxml_parser::parse_parallel(const ptree &pt, const boost::shared_ptr<state> &parent)
+void scxml_parser::parse_parallel(const ptree&, const boost::shared_ptr<state> & /* parent */)
 {
    cerr << "error: parallels do not supported" << endl;
    exit(1);
@@ -207,7 +207,7 @@ scxml_parser::slist scxml_parser::parse_initial(const ptree &pt)
 		}
 
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: initial: " << e.what() << endl;
 		exit(1);
 	}
@@ -249,7 +249,7 @@ void scxml_parser::parse_state(const ptree &pt, const boost::shared_ptr<state> &
 			parent->initial.push_back(st->id);
 		}
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: state: " << e.what() << endl;
 		exit(1);
 	}
@@ -266,7 +266,7 @@ scxml_parser::plist<scxml_parser::action> scxml_parser::parse_entry(const ptree 
 			else cerr << "warning: unknown item '" << it->first << "' in <onentry> or <onexit>" << endl;
 		}
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: onentry/onexit: " << e.what() << endl;
 		exit(1);
 	}
@@ -289,7 +289,7 @@ boost::shared_ptr<scxml_parser::action> scxml_parser::parse_log(const ptree &pt)
 			else cerr << "warning: unknown item '" << it->first << "' in <log>" << endl;
 		}
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: log: " << e.what() << endl;
 		exit(1);
 	}
@@ -307,7 +307,7 @@ boost::shared_ptr<scxml_parser::action> scxml_parser::parse_script(const ptree &
 			else cerr << "warning: unknown item '" << it->first << "' in <script>" << endl;
 		}
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: action: " << e.what() << endl;
 		exit(1);
 	}
@@ -345,7 +345,7 @@ boost::shared_ptr<scxml_parser::transition> scxml_parser::parse_transition(const
          tr->executable_content = content;
       }
 	}
-	catch (ptree_error e) {
+	catch (ptree_error& e) {
 		cerr << "error: transition: " << e.what() << endl;
 		exit(1);
 	}
