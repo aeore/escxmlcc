@@ -10,7 +10,9 @@
 #define NOUSER
 #define NOKERNEL
 #define NOSOUND
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #endif
 
@@ -28,7 +30,6 @@
  * When loading the DLL, the TestPlugIn runner look-up this function and
  * retreives the 
  *
- * See the TestPlugIn example for VC++ for details.
  */
 class TestPlugInInterface
 {
@@ -49,7 +50,5 @@ typedef TestPlugInInterface* (WINAPI *GetTestPlugInInterfaceFunction)(void);
 extern "C" {
   __declspec(dllexport) TestPlugInInterface *GetTestPlugInInterface();
 }
-
-
 
 #endif // CPPUNIT_TESTPLUGINRUNNER_TESTPLUGININTERFACE_H

@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "Environment/Environment.hpp"
+//#include "Environment/Environment.hpp"
 
 // --------------------------------------------------------------------------
 // Code definition
@@ -47,8 +47,8 @@ private:
 class C##cls##AH: public C##cls##ActionHandlerDefault { __VA_ARGS__ };
 
 #define STATE( cls, name ) \
-   virtual void state##name##Enter( C##cls##FSM::data_model& m ) { TestSet::sequence.action( "state_"#name"::enter" ); } \
-   virtual void state##name##Exit( C##cls##FSM::data_model& m ) { TestSet::sequence.action( "state_"#name"::exit" ); }
+   virtual void state##name##Enter( C##cls##FSM::data_model& ) { TestSet::sequence.action( "state_"#name"::enter" ); } \
+   virtual void state##name##Exit( C##cls##FSM::data_model& ) { TestSet::sequence.action( "state_"#name"::exit" ); }
 
 #define RUN_TEST_FSM( cls ) \
    C##cls##AH ah; \
@@ -56,8 +56,8 @@ class C##cls##AH: public C##cls##ActionHandlerDefault { __VA_ARGS__ };
    chart.init();
 
 #define ACTION( cls, name, ... ) \
-   virtual void on##name( C##cls##FSM::data_model& m, __VA_ARGS__ ) { TestSet::sequence.action( "action_"#name ); }
-
+   virtual void on##name( C##cls##FSM::data_model&, ##__VA_ARGS__ ) { TestSet::sequence.action( "action_"#name ); }
+/*
 class D{};
 DECLARE_EVENT(E, D, I);
 
@@ -212,6 +212,7 @@ public:
 #define ENV_STATE(testcase, name) \
    virtual void state##name##Enter(typename C##testcase##FSM::data_model& m) { check("state_"#name"::enter"); }\
    virtual void state##name##Exit(typename C##testcase##FSM::data_model& m) { check("state_"#name"::exit"); }
+*/
 
 // --------------------------------------------------------------------------
 inline Sequence& Sequence::tr_action( std::string name )

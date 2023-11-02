@@ -8,18 +8,13 @@
 #pragma warning( disable: 4251 )  // X needs to have dll-interface to be used by clients of class Z
 #endif
 
-#include <cppunit/portability/CppUnitDeque.h>
+#include <deque>
 #include <string>
 
 CPPUNIT_NS_BEGIN
 
 
 class Test;
-
-#if CPPUNIT_NEED_DLL_DECL
-//  template class CPPUNIT_API std::deque<Test *>;
-#endif
-
 
 /*! \brief A List of Test representing a path to access a Test.
  * \ingroup ExecutingTest
@@ -88,7 +83,7 @@ public:
   virtual bool isValid() const;
 
   /*! \brief Adds a test to the path.
-   * \param test Pointer on the test to add. Must not be \c NULL.
+   * \param test Pointer on the test to add. Must not be \c nullptr.
    */
   virtual void add( Test *test );
 
@@ -98,7 +93,7 @@ public:
   virtual void add( const TestPath &path );
 
   /*! \brief Inserts a test at the specified index.
-   * \param test Pointer on the test to insert. Must not be \c NULL.
+   * \param test Pointer on the test to insert. Must not be \c nullptr.
    * \param index Zero based index indicating where the test is inserted.
    * \exception std::out_of_range is \a index < 0 or \a index > getTestCount().
    */
@@ -137,13 +132,13 @@ public:
 
   /*! \brief Returns the test of the specified index.
    * \param index Zero based index of the test to return.
-   * \return Pointer on the test at index \a index. Never \c NULL.
+   * \return Pointer on the test at index \a index. Never \c nullptr.
    * \exception std::out_of_range is \a index < 0 or \a index >= getTestCount().
    */
   virtual Test *getTestAt( int index ) const;
 
   /*! \brief Get the last test of the path.
-   * \return Pointer on the last test (test at the bottom of the hierarchy). Never \c NULL.
+   * \return Pointer on the last test (test at the bottom of the hierarchy). Never \c nullptr.
    * \exception std::out_of_range if the path is not valid ( isValid() returns \c false ).
    */
   virtual Test *getChildTest() const;
@@ -174,7 +169,7 @@ protected:
   void checkIndexValid( int index ) const;
 
   /// A list of test names.
-  typedef CppUnitDeque<std::string> PathTestNames;
+  typedef std::deque<std::string> PathTestNames;
 
   /*! \brief Splits a path string into its test name components.
    * \param pathAsString Path string created with toString().
@@ -190,7 +185,7 @@ protected:
    *                   the root test if the path string is relative.
    * \param pathAsString Path string. May be absolute or relative.
    * \param testNames Test name components are added to that container.
-   * \return Pointer on the resolved root test. Never \c NULL.
+   * \return Pointer on the resolved root test. Never \c nullptr.
    * \exception std::invalid_argument if either the root name can not be resolved or if
    *            pathAsString contains no name components.
    */
@@ -199,7 +194,7 @@ protected:
                         PathTestNames &testNames );
 
 protected:
-  typedef CppUnitDeque<Test *> Tests;
+  typedef std::deque<Test *> Tests;
   Tests m_tests;
 
 };

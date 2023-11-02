@@ -40,7 +40,7 @@ CPPUNIT_NS_END
  * \see CPPUNIT_PLUGIN_IMPLEMENT, CPPUNIT_PLUGIN_EXPORTED_FUNCTION_IMPL
  * \see CppUnit::TestPlugInDefaultImpl, CppUnit::XmlOutputter.
  */
-struct CppUnitTestPlugIn
+struct CPPUNIT_API CppUnitTestPlugIn
 {
   /*! \brief Called just after loading the dynamic library. 
    *
@@ -146,14 +146,14 @@ typedef CppUnitTestPlugIn *(*TestPlugInSignature)();
 #define NOUSER
 #define NOKERNEL
 #define NOSOUND
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #define BLENDFUNCTION void    // for mingw & gcc
 #include <windows.h>
 #endif
 #define CPPUNIT_PLUGIN_IMPLEMENT_MAIN()               \
-  BOOL APIENTRY DllMain( HANDLE hModule,              \
-                         DWORD  ul_reason_for_call,   \
-                         LPVOID lpReserved )          \
+  BOOL APIENTRY DllMain( HANDLE, DWORD, LPVOID )      \
   {                                                   \
       return TRUE;                                    \
   }                                                   \
@@ -162,7 +162,7 @@ typedef CppUnitTestPlugIn *(*TestPlugInSignature)();
 // Unix
 #elif defined(CPPUNIT_HAVE_UNIX_DLL_LOADER) || defined(CPPUNIT_HAVE_UNIX_SHL_LOADER)
 #define CPPUNIT_PLUGIN_IMPLEMENT_MAIN()               \
-  int main( int argc, char *argv[] )                  \
+  int main()                                          \
   {                                                   \
     return 0;                                         \
   }                                                   \

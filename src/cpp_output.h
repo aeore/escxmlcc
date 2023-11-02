@@ -67,5 +67,109 @@ class cpp_output {
    
 };
 
+class Condition {
+	uint _index;
+	std::string _condition;
+
+	char getNextChar() {
+		char result = '\0';
+		_index++;
+		if (_index < _condition.length() ) {
+			result = _condition[_index];
+		}
+		return result;
+	}
+
+	char currentChar() {
+		char result = '\0';
+		if (_index < _condition.length() ) {
+			result = _condition[_index];
+		}
+		return result;
+	}
+
+	std::string getId(int& startPos, bool &isword) {
+		std::string result;
+		isword = false;
+		_index = startPos;
+
+		bool process = true;
+		while (process) {
+			char c = currentChar();
+			startPos = _index;
+			if (std::isalpha(c) || c == '_') {
+				do {
+					result += c;
+					c = getNextChar();
+				} while ((std::isalpha(c) || std::isdigit(c) || c == '_') && c != 0);
+				isword = true;
+				process = false;
+			} else {
+				switch (c) {
+				case ' ':
+					getNextChar();
+					break;
+				case '"':
+					do {
+						c = getNextChar();
+					} while (c != '"' && c != 0);
+					c = getNextChar();
+					break;
+				case '\'':
+					c = getNextChar();
+					c = getNextChar();
+					c = getNextChar();
+					break;
+				case 0:
+					process = false;
+					break;
+				default:
+					result = c;
+					process = false;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+public:
+	void fixCondition(const std::vector<std::pair<std::string, std::string>>& datamodel) {
+		std::string word;
+		int position = 0;
+		bool prohibited = false;
+		do {
+			bool isword;
+ 		    word = getId(position, isword);
+			bool found = false;
+		    if (!prohibited && isword) {
+				for (auto& p : datamodel) {
+					if (p.second == word) {
+						_condition.insert(position, "sc.model.");
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				position += word.length() + 9;
+			} else {
+				position += word.length();
+			}
+		    prohibited = word == ":" || word == ".";
+		} while (word != "");
+	}
+
+	std::string getCondition() const {
+		return _condition;
+	}
+
+public:
+   Condition(const std::string& condition)
+      : _condition (condition) {
+        _index = 0;
+   }
+};
+
 #endif
 

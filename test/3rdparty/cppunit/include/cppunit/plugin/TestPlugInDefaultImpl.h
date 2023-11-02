@@ -7,6 +7,11 @@
 
 #include <cppunit/plugin/TestPlugIn.h>
 
+#if CPPUNIT_NEED_DLL_DECL
+#pragma warning( push )
+#pragma warning( disable: 4251 4660 )  // X needs to have dll-interface to be used by clients of class Z
+#endif
+
 CPPUNIT_NS_BEGIN
 
 
@@ -28,24 +33,28 @@ class CPPUNIT_API TestPlugInDefaultImpl : public CppUnitTestPlugIn
 public:
   TestPlugInDefaultImpl();
 
-  virtual ~TestPlugInDefaultImpl();
+  virtual ~TestPlugInDefaultImpl() override;
 
   void initialize( TestFactoryRegistry *registry,
-                   const PlugInParameters &parameters );
+                   const PlugInParameters &parameters ) override;
 
-  void addListener( TestResult *eventManager );
+  void addListener( TestResult *eventManager ) override;
 
-  void removeListener( TestResult *eventManager );
+  void removeListener( TestResult *eventManager ) override;
 
-  void addXmlOutputterHooks( XmlOutputter *outputter );
+  void addXmlOutputterHooks( XmlOutputter *outputter ) override;
 
-  void removeXmlOutputterHooks();
+  void removeXmlOutputterHooks() override;
 
-  void uninitialize( TestFactoryRegistry *registry );
+  void uninitialize( TestFactoryRegistry *registry ) override;
 };
 
 
 CPPUNIT_NS_END
+
+#if CPPUNIT_NEED_DLL_DECL
+#pragma warning( pop )
+#endif
 
 #endif // !defined(CPPUNIT_NO_TESTPLUGIN)
 

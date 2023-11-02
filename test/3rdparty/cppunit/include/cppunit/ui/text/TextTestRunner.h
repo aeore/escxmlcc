@@ -63,9 +63,9 @@ class TestResultCollector;
 class CPPUNIT_API TextTestRunner : public CPPUNIT_NS::TestRunner
 {
 public:
-  TextTestRunner( Outputter *outputter =NULL );
+  TextTestRunner( Outputter *outputter = nullptr );
 
-  virtual ~TextTestRunner();
+  virtual ~TextTestRunner() override;
 
   bool run( std::string testPath ="",
             bool doWait = false,
@@ -80,11 +80,17 @@ public:
 
 public: // overridden from TestRunner (to avoid hidden virtual function warning)
   virtual void run( TestResult &controller,
-                    const std::string &testPath = "" );
+                    const std::string &testPath = "" ) override;
 
 protected:
   virtual void wait( bool doWait );
   virtual void printResult( bool doPrintResult );
+
+private:
+  // prohibit copying
+  TextTestRunner( const TextTestRunner& );
+  // prohibit copying
+  TextTestRunner& operator=( const TextTestRunner& );
 
   TestResultCollector *m_result;
   TestResult *m_eventManager;

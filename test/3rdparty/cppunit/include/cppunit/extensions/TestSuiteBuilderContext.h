@@ -2,7 +2,7 @@
 #define CPPUNIT_HELPER_TESTSUITEBUILDERCONTEXT_H
 
 #include <cppunit/Portability.h>
-#include <cppunit/portability/CppUnitMap.h>
+#include <map>
 #include <string>
 
 #if CPPUNIT_NEED_DLL_DECL
@@ -40,9 +40,14 @@ public:
 
   virtual ~TestSuiteBuilderContextBase();
 
+  TestSuiteBuilderContextBase(TestSuiteBuilderContextBase const &) = default;
+  TestSuiteBuilderContextBase(TestSuiteBuilderContextBase &&) = default;
+  TestSuiteBuilderContextBase & operator =(TestSuiteBuilderContextBase const &) = delete;
+  TestSuiteBuilderContextBase & operator =(TestSuiteBuilderContextBase &&) = delete;
+
   /*! \brief Adds a test to the fixture suite.
    *
-   * \param test Test to add to the fixture suite. Must not be \c NULL.
+   * \param test Test to add to the fixture suite. Must not be \c nullptr.
    */
   void addTest( Test *test );
 
@@ -61,6 +66,21 @@ public:
    *         test.
    */
   std::string getTestNameFor( const std::string &testMethodName ) const;
+
+  /*! \brief Returns the name of the test for the specified method with the corresponding parameter.
+   *
+   * \param testMethodName Name (including a parameter) of the method that implements a test.
+   * \return A string that is the concatenation of the test fixture name
+   *         (returned by getFixtureName()), \a testMethodName,
+   *         separated using '::' and the parameter. This provides a fairly unique name for a given
+   *         test. The parameter must be convertable to std::string through operator<<
+   *         or a specialization of CPPUNIT_NS::StringHelper::toString needs to exist.
+   */
+  template<typename T>
+  std::string getTestNameFor( const std::string &testMethodName, const T& value ) const
+  {
+      return m_namer.getTestNameFor(testMethodName, value);
+  }
 
   /*! \brief Adds property pair.
    * \param key   PropertyKey string to add.
@@ -81,7 +101,7 @@ protected:
   // shared std::map in dll bug in VC6.
   // See http://www.dinkumware.com/vc_fixes.html for detail.
   typedef std::pair<std::string,std::string> Property;
-  typedef CppUnitVector<Property> Properties;
+  typedef std::vector<Property> Properties;
 
   TestSuite &m_suite;
   const TestNamer &m_namer;
@@ -115,7 +135,7 @@ public:
    */
   FixtureType *makeFixture() const
   {
-    return CPPUNIT_STATIC_CAST( FixtureType *, 
+    return static_cast<FixtureType*>(
                                 TestSuiteBuilderContextBase::makeTestFixture() );
   }
 };

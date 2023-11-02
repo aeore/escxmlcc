@@ -17,3 +17,8 @@ find_package(Boost 1.45.0 COMPONENTS system filesystem program_options REQUIRED)
 
 add_executable(${PROJECT_NAME} ${Boost_INCLUDE_DIRS} src/main.cpp src/cpp_output.cpp src/scxml_parser.cpp src/version.cpp)
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+
+if (WITH_TEST)
+   add_subdirectory(test)
+endif()
