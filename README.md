@@ -2,7 +2,7 @@ escxmlcc
 ========
 
 C++ console code generator and editor with GUI for state machines.
-This generator is on the proof-of-concept stage.
+This project is on the proof-of-concept stage.
 
 ##### License
 
