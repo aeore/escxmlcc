@@ -22,7 +22,7 @@
 //todo store scxml in internal format. to be able to parse other input formats
 #include "scxml_parser.h"
 #include "options.h"
-
+#include <cctype>
 #include <ostream>
 
 class cpp_output {
@@ -68,7 +68,7 @@ class cpp_output {
 };
 
 class Condition {
-	uint _index;
+	unsigned int _index;
 	std::string _condition;
 
 	char getNextChar() {
