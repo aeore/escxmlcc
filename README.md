@@ -1,7 +1,7 @@
 escxmlcc
 ========
 
-Console code generator for C++ and editor with GUI for state machines.
+C++ console code generator and editor with GUI for state machines.
 This generator is on the proof-of-concept stage.
 
 ##### License
@@ -25,6 +25,7 @@ mkdir build
 cd build
 cmake ..
 make
+optional: sudo make install
 ```
 
 To compile with unit tests:
