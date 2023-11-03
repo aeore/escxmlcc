@@ -1,7 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.7)
 project(escxmlcc)
 
-add_compile_options(-Wall -Wextra -Werror)
+if(CMAKE_COMPILER_IS_GNUCXX)
+   add_compile_options(-Wall -Wextra -Werror)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
