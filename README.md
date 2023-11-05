@@ -1,8 +1,21 @@
 escxmlcc
 ========
 
-C++ console code generator and editor with GUI for state machines.
-This project is on the proof-of-concept stage.
+This editor and generator provide Mealy-Moore hierarchical state machine function, in particular:
+  - init, state and group state nodes (plain and hierarchical FSM)
+  - state handlers
+  - conditions
+  - data model with accessors and ability to use it in the conditions
+  - triggers
+  - multiple transition handlers
+  - self-transitions
+  - auto-transitions
+  - ability to put any code to the generated source code (includes, types, etc.)
+Generated code  has no dependency on other libraries and is self-sufficient.
+Project is on the proof-of-concept stage.
+
+The example of the FSM graph is provided on the picture below:
+![alt text](doc/images/FSM_Example.png "FSM Example")
 
 ##### License
 
