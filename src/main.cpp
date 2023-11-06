@@ -26,81 +26,66 @@
 #include <boost/filesystem.hpp>
 #include <algorithm>
 #include <cctype>
-#include <boost/filesystem.hpp>
 
-using namespace boost::property_tree;
-using namespace std;
+//using namespace boost::property_tree;
 namespace fs = boost::filesystem;
 
-// --------------------------------------------------------------------------
-bool c_pred( char c )
-// --------------------------------------------------------------------------
-{
-	return !isalnum(c);
-};
+bool c_pred( char c ) {
+   return !isalnum(c);
+}
 
-// --------------------------------------------------------------------------
-void scxmlcc( const options &opt )
-// --------------------------------------------------------------------------
-{
-   ptree pt;
+void scxmlcc( const options &opt ) {
+   boost::property_tree::ptree pt;
    read_xml( opt.input.string(), pt );
 
-   string sc_name = opt.input.stem().string();
-   replace_if( sc_name.begin(), sc_name.end(), c_pred, '_' );
+   std::string sc_name = opt.input.stem().string();
+   std::replace_if( sc_name.begin(), sc_name.end(), c_pred, '_' );
 
    scxml_parser sc( sc_name.c_str(), pt );
 
-   ofstream ofs( opt.output.c_str() );
-
+   std::ofstream ofs( opt.output.c_str() );
    cpp_output out( ofs, sc, opt );
    out.gen();
 }
-// --------------------------------------------------------------------------
-int main(int argc, char *argv[])
-// --------------------------------------------------------------------------
-{
+
+int main(int argc, char *argv[]) {
    using namespace boost::program_options;
    
    options_description desc( "Options" );
    desc.add_options()
       ( "help,h", "This help message" )
-      ( "input,i", value<string>(),	"Input file" )
-      ( "output,o", value<string>(),	"Output directory" )
-	  ( "asyncs,a", bool_switch()->default_value(false), "With Asyncs")
+      ( "input,i", value<std::string>(), "Input file" )
+      ( "output,o", value<std::string>(), "Output directory" )
+      ( "asyncs,a", bool_switch()->default_value(false), "With Asyncs")
       ( "version,v", "Version information" );
 
    positional_options_description pdesc;
    pdesc.add( "input", -1 );
-	
+
    variables_map vm;
    try {
       store( parse_command_line(argc, argv, desc), vm );
       store( command_line_parser(argc, argv).options(desc).positional(pdesc).run(), vm );
       notify( vm );
-   }
-   catch ( error& e ) {
-      cerr << "Error: " << e.what() << endl;
+   } catch ( error& e ) {
+      std::cerr << "Error: " << e.what() << std::endl;
       return -1;
    }
 
    options opt;
-
    opt.withAsyncs = vm["asyncs"].as<bool>();
 
    if ( vm.count("input") ) {
-      opt.input = vm["input"].as<string>();
+      opt.input = vm["input"].as<std::string>();
    }
 
    if ( vm.count("output") ) {
-      opt.output = vm["output"].as<string>();
+      opt.output = vm["output"].as<std::string>();
       opt.output = opt.output / boost::filesystem::path( opt.input ).stem().replace_extension(".hpp");
 
-      opt.output_cpp = vm["output"].as<string>();
+      opt.output_cpp = vm["output"].as<std::string>();
       opt.output_cpp = opt.output_cpp / boost::filesystem::path( opt.input ).stem().replace_extension(".cpp");
    }
-
-	//if (vm.count("debug")) opt.debug = true;
 
    if ( !opt.input.empty() && opt.output.empty() ) {
       opt.output = opt.input;
@@ -110,44 +95,43 @@ int main(int argc, char *argv[])
    }
 
    if ( vm.count("version") ) {
-      cout << "scxmlcc version: " << version() << endl;
-      cout << endl << "  <!> This is not an original scxmlcc FSM compiler <!>" << endl << endl;
-      cout << "For more information about original version, see http://scxmlcc.org" << endl;
-      cout << endl; 
-      cout << "  Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>" << endl;
-      cout << "  Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>" << endl;
-      cout << endl; 
-      cout << "  This program is free software: you can redistribute it and/or modify" << endl;
-      cout << "  it under the terms of the GNU General Public License as published by" << endl;
-      cout << "  the Free Software Foundation, either version 3 of the License, or" << endl;
-      cout << "  (at your option) any later version." << endl;
-      cout << endl;  
-      cout << "  This program is distributed in the hope that it will be useful," << endl;
-      cout << "  but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl;
-      cout << "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the" << endl;
-      cout << "  GNU General Public License for more details." << endl;
-      cout << endl; 
-      cout << "  You should have received a copy of the GNU General Public License" << endl;
-      cout << "  along with this program.  If not, see <http://www.gnu.org/licenses/>." << endl;
-      cout << endl;  
+      std::cout << "scxmlcc version: " << version() << std::endl;
+      std::cout << std::endl << "  <!> This is not an original scxmlcc FSM compiler <!>" << std::endl << std::endl;
+      std::cout << "For more information about original version, see http://scxmlcc.org" << std::endl;
+      std::cout << std::endl; 
+      std::cout << "  Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>" << std::endl;
+      std::cout << "  Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>" << std::endl;
+      std::cout << std::endl; 
+      std::cout << "  This program is free software: you can redistribute it and/or modify" << std::endl;
+      std::cout << "  it under the terms of the GNU General Public License as published by" << std::endl;
+      std::cout << "  the Free Software Foundation, either version 3 of the License, or" << std::endl;
+      std::cout << "  (at your option) any later version." << std::endl;
+      std::cout << std::endl;  
+      std::cout << "  This program is distributed in the hope that it will be useful," << std::endl;
+      std::cout << "  but WITHOUT ANY WARRANTY; without even the implied warranty of" << std::endl;
+      std::cout << "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the" << std::endl;
+      std::cout << "  GNU General Public License for more details." << std::endl;
+      std::cout << std::endl; 
+      std::cout << "  You should have received a copy of the GNU General Public License" << std::endl;
+      std::cout << "  along with this program. If not, see <http://www.gnu.org/licenses/>." << std::endl;
+      std::cout << std::endl;  
       return 0;
    }
 
    if ( vm.count("help") || opt.input.empty() ) {
-      cout << "Extended scxml FSM compiler, version " << version() << endl;
-      cout << "  Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>" << endl;
-      cout << "  Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>" << endl;
-      cout << "" << endl;
-      cout << "Usage: " << argv[0] << " [options] [input]" << endl;
-      cout << desc << endl;
+      std::cout << "Extended scxml FSM compiler, version " << version() << std::endl;
+      std::cout << "  Copyright (C) 2013 Jan Pedersen <jp@jp-embedded.com>" << std::endl;
+      std::cout << "  Copyright (C) 2014 Yuriy Gurin <ygurin@outlook.com>" << std::endl;
+      std::cout << "" << std::endl;
+      std::cout << "Usage: " << argv[0] << " [options] [input]" << std::endl;
+      std::cout << desc << std::endl;
       return 0;
    }
 
    try {
       scxmlcc( opt );
-   }
-   catch (...) {
-      cerr << "Unandled error!" << endl;
+   } catch (...) {
+      std::cerr << "Unandled error!" << std::endl;
       return 1;
    }
    return 0;
