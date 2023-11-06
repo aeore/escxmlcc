@@ -39,28 +39,38 @@
 using namespace boost::property_tree;
 using namespace std;
 
-namespace ltrim{
+namespace trim {
+
 // trim from start
 static inline std::string &ltrim( std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
+   string::iterator it = s.begin();
+   auto pos = s.find_first_not_of( " \n\r\t" );
+   if ( pos != std::string::npos ) {
+      std::advance( it, pos );
+   }
+   s.erase( s.begin(), it );
+   return s;
 }
 
 // trim from end
 static inline std::string &rtrim( std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
+   auto pos = s.find_last_not_of( " \n\r\t" );
+   if ( pos != std::string::npos ) {
+      s.erase( pos + 1 );
+   }
+   return s;
 }
 
 // trim from both ends
 static inline std::string &trim( std::string &s) {
-        return ltrim(rtrim(s));
+   return ltrim(rtrim(s));
 }
-};
+
+} // trim
 
 // --------------------------------------------------------------------------
 scxml_parser::scxml_parser( const char *name, const ptree &pt ) 
-: using_parallel( false )
+   : using_parallel( false )
 // --------------------------------------------------------------------------
 {
    m_scxml.name = name;
@@ -339,7 +349,7 @@ boost::shared_ptr<scxml_parser::transition> scxml_parser::parse_transition(const
 		}
 
       string s = pt.data();
-      std::string content = ltrim::trim(s);
+      std::string content = trim::trim(s);
       if (content != "")
       {
          tr->executable_content = content;
