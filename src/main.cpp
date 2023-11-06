@@ -56,7 +56,6 @@ int main(int argc, char *argv[]) {
       ( "help,h", "This help message" )
       ( "input,i", value<std::string>(), "Input file" )
       ( "output,o", value<std::string>(), "Output directory" )
-      ( "asyncs,a", bool_switch()->default_value(false), "With Asyncs")
       ( "version,v", "Version information" );
 
    positional_options_description pdesc;
@@ -73,8 +72,6 @@ int main(int argc, char *argv[]) {
    }
 
    options opt;
-   opt.withAsyncs = vm["asyncs"].as<bool>();
-
    if ( vm.count("input") ) {
       opt.input = vm["input"].as<std::string>();
    }

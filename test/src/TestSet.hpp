@@ -29,7 +29,7 @@
 class TestSet : public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE( TestSet );
-	   CPPUNIT_TEST( testOneState );
+      CPPUNIT_TEST( testOneState );
       CPPUNIT_TEST( testTwoStatesUncond );
       CPPUNIT_TEST( testTwoStatesEvent );
       CPPUNIT_TEST( testThreeDirectEvent );
@@ -69,31 +69,13 @@ class TestSet : public CppUnit::TestFixture
       CPPUNIT_TEST( testTHCluster3 );
       CPPUNIT_TEST( testTHCluster4 );
       CPPUNIT_TEST( testTHTwoWays );
-      
-      // asyncs will not be supported
-      /*CPPUNIT_TEST( testAsyncNameTransition_1 );
-      CPPUNIT_TEST( testAsyncNameTransition_2 );
-      CPPUNIT_TEST( testAsyncNameTransition_3 );
-      CPPUNIT_TEST( testAsyncNameTransition_4 );
-      CPPUNIT_TEST( testAsyncNameTransition_5 );
-      CPPUNIT_TEST( testAsyncNameTransition_6 );
-      CPPUNIT_TEST( testAsyncNameTransition_7 );
-      CPPUNIT_TEST( testAsyncNameTransition_8 );
-      CPPUNIT_TEST( testAsyncNameTransition_9 );
-      CPPUNIT_TEST( testAsyncNameTransition_10 );
-      CPPUNIT_TEST( testAsyncNameTransition_11 );
-      CPPUNIT_TEST( testAsyncNameTransition_12 );
-      CPPUNIT_TEST( testAsyncNameTransition_13 );
-      CPPUNIT_TEST( testAsyncNameTransition_14 );
-      CPPUNIT_TEST( testAsyncNameTransition_15 );
-      CPPUNIT_TEST( testAsyncNameTransition_16 );*/
-	CPPUNIT_TEST_SUITE_END();
+   CPPUNIT_TEST_SUITE_END();
 
 public:
-	virtual void setUp();
-	virtual void tearDown();
+   virtual void setUp();
+   virtual void tearDown();
 
-	void testOneState( void );
+   void testOneState( void );
    void testTwoStatesUncond( void );
    void testTwoStatesEvent( void );
    void testThreeDirectEvent( void );
@@ -133,22 +115,6 @@ public:
    void testTHCluster3( void );
    void testTHCluster4( void );
    void testTHTwoWays( void );
-   /*void testAsyncNameTransition_1( void );
-   void testAsyncNameTransition_2( void );
-   void testAsyncNameTransition_3( void );
-   void testAsyncNameTransition_4( void );
-   void testAsyncNameTransition_5( void );
-   void testAsyncNameTransition_6( void );
-   void testAsyncNameTransition_7( void );
-   void testAsyncNameTransition_8( void );
-   void testAsyncNameTransition_9( void );
-   void testAsyncNameTransition_10( void );
-   void testAsyncNameTransition_11( void );
-   void testAsyncNameTransition_12( void );
-   void testAsyncNameTransition_13( void );
-   void testAsyncNameTransition_14( void );
-   void testAsyncNameTransition_15( void );
-   void testAsyncNameTransition_16( void );*/
 
    static Sequence sequence;
 };

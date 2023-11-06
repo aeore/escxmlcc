@@ -29,7 +29,7 @@ class scxml_parser
 {
 public:
    template <class T> class plist : public std::vector<std::shared_ptr<T> > {};
-   
+
    typedef std::vector<std::string> slist;
 
    bool using_parallel;
