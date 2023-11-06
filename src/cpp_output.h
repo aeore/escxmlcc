@@ -45,7 +45,6 @@ protected:
    std::string state_actions_t();
    std::string state_composite_t();
    std::string state_parallel_t();
-   void gen_async_event(void);
    void gen_model_base();
    void gen_state_base();
    void gen_state_composite_base();
@@ -73,7 +72,7 @@ class Condition {
    char getNextChar() {
       char result = '\0';
       _index++;
-      if (_index < _condition.length() ) {
+      if ( _index < _condition.length() ) {
          result = _condition[_index];
       }
       return result;
@@ -81,7 +80,7 @@ class Condition {
 
    char currentChar() {
       char result = '\0';
-      if (_index < _condition.length() ) {
+      if ( _index < _condition.length() ) {
          result = _condition[_index];
       }
       return result;
@@ -93,25 +92,25 @@ class Condition {
       _index = startPos;
 
       bool process = true;
-      while (process) {
+      while ( process ) {
          char c = currentChar();
          startPos = _index;
          if (std::isalpha(c) || c == '_') {
             do {
                result += c;
                c = getNextChar();
-            } while ((std::isalpha(c) || std::isdigit(c) || c == '_') && c != 0);
+            } while ( (std::isalpha(c) || std::isdigit(c) || c == '_') && c != 0 );
             isword = true;
             process = false;
          } else {
-            switch (c) {
+            switch ( c ) {
             case ' ':
                getNextChar();
                break;
             case '"':
                do {
                   c = getNextChar();
-               } while (c != '"' && c != 0);
+               } while ( c != '"' && c != 0 );
                c = getNextChar();
                break;
             case '\'':
@@ -133,7 +132,7 @@ class Condition {
    }
 
 public:
-   void fixCondition(const std::vector<std::pair<std::string, std::string>>& datamodel) {
+   void fixCondition( const std::vector<std::pair<std::string, std::string>>& datamodel ) {
       std::string word;
       int position = 0;
       bool prohibited = false;
@@ -164,8 +163,8 @@ public:
    }
 
 public:
-   Condition(const std::string& condition)
-      : _condition (condition) {
+   Condition( const std::string& condition )
+      : _condition( condition ) {
         _index = 0;
    }
 };

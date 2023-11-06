@@ -21,12 +21,10 @@
 
 #include <boost/filesystem.hpp>
 
-struct options
-{
+struct options {
    boost::filesystem::path input;
    boost::filesystem::path output;
    boost::filesystem::path output_cpp;
-   bool withAsyncs;
 };
 
 #endif

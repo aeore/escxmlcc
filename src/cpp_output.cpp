@@ -438,7 +438,6 @@ void cpp_output::gen_state_base() {
       }
    }
    out << tab << tab << "virtual " << state_t() << "* unconditional( " << classname() << "& ) { return 0; }" << std::endl;
-   out << tab << tab << "virtual " << state_t() << "* unconditional_async( " << classname() << "& ) { return 0; }" << std::endl;
    out << tab << tab << "virtual " << state_t() << "* initial( " << classname() << "& ) { return 0; }" << std::endl;
 
    out << std::endl;
@@ -477,18 +476,6 @@ scxml_parser::state_list cpp_output::children(const scxml_parser::state &state) 
    return states;
 }
 
-bool isAsyncTransitions(const scxml_parser::state &state) {
-   for ( scxml_parser::transition_list::const_iterator t = state.transitions.begin(); t != state.transitions.end(); ++t ) {
-      if ( t->get()->event ) {
-         std::string trig_event_name = *t->get()->event;
-         if ( std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end() ) {
-            return true;
-         }
-      }
-   }
-   return false;
-}
-
 void cpp_output::gen_state(const scxml_parser::state &state) {
    std::string parent, prefix;
    if ( state.type && *state.type == "inter" ) {
@@ -515,43 +502,27 @@ void cpp_output::gen_state(const scxml_parser::state &state) {
 
    // One event can owned many transitions (with different conditions)
    std::map< std::string, std::vector<std::string> > mth;
-   std::map< std::string, std::string> mth_async;
    bool isUnconditionalTransitions = false;
    bool isAutotransitional = true;
-   //events
-   bool async_autotransition = false;
+
    // t is iterator to [shared_ptr of transition]
    for ( scxml_parser::transition_list::const_iterator t = state.transitions.begin(); t != state.transitions.end(); ++t ) {
       std::string target;
       std::string target_classname = state_classname;
       std::string transitionName;
-      std::string transitionEventName;
 
       if ( t->get()->target.size() ) {
          target = "sc.m_state_" + t->get()->target.front(); //todo handle multiple targets
          target_classname = "state_" + t->get()->target.front(); //todo handle multiple targets
       }
-
-      bool async = false;
       
       if ( t->get()->event ) {
          std::string trig_event_name = *t->get()->event;
-         async = std::find_if(trig_event_name.begin(), trig_event_name.end(), [](char c)->bool{ return c == '@'; }) != trig_event_name.end();
          trig_event_name.erase(std::remove(trig_event_name.begin(), trig_event_name.end(), '@'), trig_event_name.end());
+         
+         isAutotransitional = false;
 
-        // async_autotransition |= async && trig_event_name == "";
-
-         if ( async && trig_event_name == "" ) {
-            async_autotransition = true;
-            isUnconditionalTransitions = true;
-            isAutotransitional = false;
-            transitionName = "unconditional";
-         } else {
-            isAutotransitional = false;
-
-            transitionName = "trigger_" + trig_event_name;
-            transitionEventName = "event_" + trig_event_name;
-         }
+         transitionName = "trigger_" + trig_event_name;
       } else {
          isUnconditionalTransitions = true;
          
@@ -575,10 +546,6 @@ void cpp_output::gen_state(const scxml_parser::state &state) {
          t->get()->event_fmt = "state::" + transitionName;
          t->get()->source_fmt = state_classname;
          t->get()->dest_fmt = target_classname;
-
-         if (async && transitionName != "unconditional") {
-            mth_async[transitionEventName] = "return sc.asyncTriggerInvoker.makeAsyncCall( &state::" + transitionName + " );";
-         }
       } else {
          // transition without target
          mth[transitionName].push_back(s + "return transition<" + std::to_string(mTransitionIndex) + ", &state::" + transitionName + ", " + state_classname + ">()( this, sc );");
@@ -601,99 +568,12 @@ void cpp_output::gen_state(const scxml_parser::state &state) {
       out << tab << tab << "}" << std::endl;
    }
 
-   if (isUnconditionalTransitions && async_autotransition) {
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << tab << "inline virtual state* unconditional_async(" << classname() << " &sc) {" << std::endl;
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << tab << tab << "return sc.asyncTriggerInvoker.makeAsyncUCall(&state::unconditional);" << std::endl;
-      out << tab << tab << "}" << std::endl;
-   }
-
-   for (std::map< std::string, std::string >::iterator it = mth_async.begin(); it != mth_async.end(); it++) {
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) { " << it->second << " }" << std::endl;
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   }
-
-   if ( isAsyncTransitions(state) ) {
-      out << std::endl;
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << tab << "inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }" << std::endl;
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << std::endl;
-   }
-
    if ( !isAutotransitional && !isUnconditionalTransitions ) {
       out << tab << tab << "virtual state* unconditional( " << classname() << "& ) { return 0; }" << std::endl;
    }
       
    out << tab << "} m_" << prefix << "state_" << state.id << ";" << std::endl;
    out << std::endl;
-}
-
-void cpp_output::gen_async_event(void) {
-   out << "private: " << std::endl;
-   out << tab << "class CPAsyncEventTransitionData" << std::endl;
-   out << tab << "{" << std::endl;
-   out << tab << "public:" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "CPAsyncEventTransitionData( " << classname() << "& fsm, const event trigger ): mFSM( fsm ), mTrigger( trigger ) { /* none */ }" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl << std::endl;
-
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "inline void dispatch( void ) { mFSM.dispatch( mTrigger ); }" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl << std::endl;
-
-   out << tab << "private:" << std::endl;
-   out << tab << tab << classname() << "& mFSM;" << std::endl;
-   out << tab << tab << "event mTrigger;" << std::endl;
-   out << tab << "};" << std::endl << std::endl;
-
-   out << tab << "DECLARE_EVENT( CPAsyncEvent, CPAsyncEventTransitionData, IPAsyncEventConsumer );" << std::endl << std::endl;
-
-   out << tab << "class CPAsyncTriggerInvoker : public IPAsyncEventConsumer" << std::endl;
-   out << tab << "{" << std::endl;
-   out << tab << "public:" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "CPAsyncTriggerInvoker( " << classname() << "& fsm ) : mFsm( fsm ) { /* none */ }" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl << std::endl;
-
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "inline state* makeAsyncCall( const event trigger ) {" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );" << std::endl;
-   out << tab << tab << tab << "e->setConsumer( this );" << std::endl;
-   out << tab << tab << tab << "e->send();" << std::endl;
-   out << tab << tab << tab << "return 0;" << std::endl;
-   out << tab << tab << "}" << std::endl << std::endl;
-
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "inline state* makeAsyncUCall( const event trigger ) {" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData(mFsm, trigger) );" << std::endl;
-   out << tab << tab << tab << "e->setConsumer( this );" << std::endl;
-   out << tab << tab << tab << "e->send();" << std::endl;
-   out << tab << tab << tab << "return (state*)0xFFFFFF;" << std::endl;
-   out << tab << tab << "}" << std::endl << std::endl;
-
-   out << tab << "protected:" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << "inline virtual void processEvent( const CPAsyncEvent& event ) { event.getData().dispatch(); }" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl << std::endl;
-
-   out << tab << "private:" << std::endl;
-   out << tab << tab << classname() << "& mFsm;" << std::endl;
-   out << tab << "} asyncTriggerInvoker;" << std::endl << std::endl;
-
-//   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-//   out << tab << "template <typename T> static state* makeAsyncCall( CTestFSM& fsm, T* consumer, const event trigger )" << std::endl;
-//   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-//   out << tab << "{" << std::endl;
-//   out << tab << tab << "CPAsyncEvent* e = CPAsyncEvent::createEvent( CPAsyncEventTransitionData( fsm, trigger ) );" << std::endl;
-//   out << tab << tab << "e->setConsumer( consumer );" << std::endl;
-//   out << tab << tab << "e->send();" << std::endl;
-//   out << tab << tab << "return 0;" << std::endl;
-//   out << tab << "}" << std::endl << std::endl;
 }
 
 void cpp_output::gen_sc() {
@@ -705,9 +585,6 @@ void cpp_output::gen_sc() {
 
    gen_model_base();
    gen_state_base();
-   if (opt.withAsyncs) {
-      gen_async_event();
-   }
    gen_state_actions_base();
    gen_state_composite_base();
    gen_state_parallel_base();
@@ -736,15 +613,6 @@ void cpp_output::gen_sc() {
       out << tab << tab << "if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;" << std::endl;
       out << tab << tab << "return next_state;" << std::endl;
       out << tab << '}' << std::endl;
-
-      if (opt.withAsyncs) {
-         out << tab << "// --------------------------------------------------------------------------" << std::endl;
-         out << tab << "bool dispatch_uasync( event e )" << std::endl;
-         out << tab << "// --------------------------------------------------------------------------" << std::endl;
-         out << tab << "{" << std::endl;
-         out << tab << tab << "return (cur_state->*e)(*this) == (state*)0xFFFFFF;" << std::endl;
-         out << tab << "}" << std::endl;
-      }
    }
    out << std::endl;
    out << "public:" << std::endl;
@@ -755,9 +623,6 @@ void cpp_output::gen_sc() {
    out << tab << tab << "bool cont = dispatch_event( e );" << std::endl;
    out << tab << tab << "while ( cont ) {" << std::endl;
    out << tab << tab << tab << "if ( (cont = dispatch_event(&state::initial)) );" << std::endl;
-   if (opt.withAsyncs) {
-      out << tab << tab << tab << "else if ( dispatch_uasync(&state::unconditional_async) );" << std::endl;
-   }
    out << tab << tab << tab << "else if ( (cont = dispatch_event(&state::unconditional)) );" << std::endl;
    //out << tab << tab << tab << "else if (event_queue.size()) cont = dispatch_event(event_queue.front()), event_queue.pop();" << std::endl;
    out << tab << tab << tab << "else break;" << std::endl;
@@ -768,9 +633,8 @@ void cpp_output::gen_sc() {
    // constructor
    out << tab << "// --------------------------------------------------------------------------" << std::endl;
    out << tab << classname() << "( " << "I" << UpperFirstLetter(sc.sc().name) + "ActionHandler* pActionHandler" << " )";
-   if (!sc.using_parallel) out << " : cur_state( &m_scxml )";
-   if (opt.withAsyncs) {
-      out <<  ", asyncTriggerInvoker( *this )";
+   if ( !sc.using_parallel ) {
+      out << " : cur_state( &m_scxml )";
    }
    out << std::endl;
    out << tab << "// --------------------------------------------------------------------------" << std::endl;
@@ -880,10 +744,6 @@ void cpp_output::gen() {
    out << std::endl;
 
    out << "#include <typeinfo>" << std::endl;
-   if ( opt.withAsyncs ) {
-      out << "#include \"Environment.hpp\"" << std::endl;
-   }
-
    out << std::endl;
 
    out << "// --------------------------------------------------------------------------" << std::endl;
