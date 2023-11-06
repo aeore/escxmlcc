@@ -17,19 +17,23 @@ Project is on the proof-of-concept stage.
 The example of the FSM graph is provided on the picture below:
 ![alt text](doc/images/FSM_Example.png "FSM Example")
 
-##### License
+## License
 
-This Source Code Form is subject to the terms of the GPLv3.
-The generated code is covered by MIT License.
+Full information on the license for this software is available in the "LICENSE" file. Full information on the license for the generated code is available in "LICENCE_GEN_CODE" file.
 
-##### Build Instructions for Linux
-###### Dependencies
+## Build Instructions for Linux
+### Dependencies
 
 - A C++11 enabled compiler is needed
 - escxmlcc uses CMake as buildsystem
 - escxmlcc uses Boost >= 1.45.0
 
-###### Compilation
+On Ubuntu those dependencies can be installed with the following command:
+```bash
+sudo apt install cmake libboost-all-dev
+```
+
+### Compilation
 
 For compilation call:
 
@@ -55,3 +59,9 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=$YOUR_PATH ..
 make
 make install
 ```
+
+## Software/Hardware
+Developed and tested with Ubuntu Linux 64-bit / Intel PC
+
+## Contact
+Yuriy Gurin <ygurin@outlook.com>

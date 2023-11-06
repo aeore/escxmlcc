@@ -22,6 +22,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-if (WITH_TEST)
+if (WITH_TESTS)
    add_subdirectory(test)
 endif()
