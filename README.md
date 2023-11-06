@@ -11,6 +11,7 @@ This editor and generator provide Mealy-Moore hierarchical state machine functio
   - self-transitions
   - auto-transitions
   - ability to put any code to the generated source code (includes, types, etc.)
+
 Generated code  has no dependency on other libraries and is self-sufficient.
 Project is on the proof-of-concept stage.
 
