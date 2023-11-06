@@ -50,6 +50,7 @@ Here are supported options:
 | --- | --- |
 | `WITH_TESTS` | Build generator with unit tests |
 | `WITH_EXAMPLES` | Build generator with examples where you can find how to use produced headers |
+
 To build with options, use:
 ```bash
 mkdir build
