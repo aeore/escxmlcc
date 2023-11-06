@@ -25,3 +25,7 @@ install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 if (WITH_TESTS)
    add_subdirectory(test)
 endif()
+
+if (WITH_EXAMPLES)
+   add_subdirectory(example)
+endif()

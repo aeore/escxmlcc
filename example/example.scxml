@@ -1,0 +1,30 @@
+<scxml initial="init" name="Example" version="0.9" xmlns="http://www.w3.org/2005/07/scxml"><!--   node-size-and-position x=0 y=0 w=580 h=370  -->
+ <datamodel>int value;</datamodel>
+ <handlers>
+  <method name="makeTransitionToD"></method>
+  <method name="makeTransitionToA"></method>
+  <method name="makeReport"></method>
+ </handlers>
+ <header></header>
+ <state id="init"><!--   node-size-and-position x=300 y=40 w=40 h=40  -->
+  <transition target="StateA"></transition>
+ </state>
+ <state id="StateA"><!--   node-size-and-position x=260 y=120 w=120 h=40  -->
+  <transition cond="value == 2" event="success" target="StateB">makeTransitionToA()</transition>
+  <transition cond="value == 1" event="success" target="StateD">makeTransitionToD()
+makeReport()<!--   edge-path [StateD]  x=150 y=140 x=140 y=150 pointx=0 pointy=-42 offsetx=-53 offsety=32  --></transition>
+ </state>
+ <state id="StateB"><!--   node-size-and-position x=260 y=210 w=120 h=40  -->
+  <transition target="StateC"><!--   edge-path [StateC]  pointx=0 pointy=10 offsetx=0 offsety=0  --></transition>
+  <transition event="failed" target="Failed"></transition>
+ </state>
+ <state id="StateC"><!--   node-size-and-position x=440 y=210 w=120 h=40  -->
+  <transition event="success" target="StateA"><!--   edge-path [StateA]  x=500 y=150 x=490 y=140 pointx=0 pointy=-10 offsetx=-32 offsety=0  --></transition>
+  <transition event="failed" target="Failed"><!--   edge-path [Failed]  x=500 y=320 x=490 y=330 pointx=0 pointy=-10 offsetx=-37 offsety=0  --></transition>
+ </state>
+ <state id="StateD"><!--   node-size-and-position x=80 y=210 w=120 h=40  -->
+  <transition event="failed" target="Failed"><!--   edge-path [Failed]  x=140 y=320 x=150 y=330 pointx=0 pointy=10 offsetx=24 offsety=-1  --></transition>
+  <transition event="success" target="StateB"><!--   edge-path [StateB]  pointx=0 pointy=10 offsetx=0 offsety=0  --></transition>
+ </state>
+ <state id="Failed"><!--   node-size-and-position x=260 y=310 w=120 h=40  --></state>
+</scxml>

@@ -12,7 +12,7 @@ This editor and generator provide Mealy-Moore hierarchical state machine functio
   - auto-transitions
   - ability to put any code to the generated source code (includes, types, etc.)
 
-Generated code  has no dependency on other libraries and is self-sufficient.
+Generated code has no dependency on other libraries and is self-sufficient.
 Project is on the proof-of-concept stage.
 
 The example of the FSM graph is provided on the picture below:
@@ -36,7 +36,7 @@ sudo apt install cmake libboost-all-dev
 
 ### Compilation
 
-For compilation call:
+For compilation, call:
 
 ```bash
 mkdir build
@@ -45,16 +45,21 @@ cmake ..
 make
 optional: sudo make install
 ```
-
-To compile with unit tests:
+Here are supported options:
+| Option| Description |
+| --- | --- |
+| `WITH_TESTS` | Build generator with unit tests |
+| `WITH_EXAMPLES` | Build generator with examples where you can find how to use produced headers |
+To build with options, use:
 ```bash
 mkdir build
 cd build
-cmake -DWITH_TESTS=TRUE ..
+cmake -D<OPTION>=TRUE -D<OTHER OPTION>=TRUE ..
 make
+optional: sudo make install
 ```
 
-To specify a installation directory (like `--prefix=` if you're used to autotools) call cmake like:
+To specify an installation directory (like `--prefix=` if you're used to autotools) call cmake like:
 ```bash
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$YOUR_PATH ..
 make
