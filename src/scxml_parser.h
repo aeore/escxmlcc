@@ -21,7 +21,6 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
 #include <string>
 #include <list>
 #include <set>
@@ -29,7 +28,7 @@
 class scxml_parser
 {
 public:
-   template <class T> class plist : public std::vector<boost::shared_ptr<T> > {};
+   template <class T> class plist : public std::vector<std::shared_ptr<T> > {};
    
    typedef std::vector<std::string> slist;
 
@@ -57,7 +56,7 @@ public:
 
    struct state {
       std::string id;
-      boost::shared_ptr<state> parent;
+      std::shared_ptr<state> parent;
       boost::optional<std::string> type;
       slist initial;
       transition_list transitions;
@@ -66,14 +65,12 @@ public:
    };
    typedef plist<state> state_list;
 
-   struct param
-   {
+   struct param {
       std::string name;
       std::string type;
    };
 
-   struct transition_action
-   {
+   struct transition_action {
       std::string name;
       std::vector<param> params;
       bool generated;
@@ -98,12 +95,12 @@ protected:
 
    void parse_scxml( const boost::property_tree::ptree &pt );
    void parse( const boost::property_tree::ptree &pt );
-   void parse_state( const boost::property_tree::ptree &pt, const boost::shared_ptr<state> &parent );
-   void parse_parallel( const boost::property_tree::ptree &pt, const boost::shared_ptr<state> &parent );
+   void parse_state( const boost::property_tree::ptree &pt, const std::shared_ptr<state> &parent );
+   void parse_parallel( const boost::property_tree::ptree &pt, const std::shared_ptr<state> &parent );
    slist parse_initial( const boost::property_tree::ptree &pt );
-   boost::shared_ptr<transition> parse_transition( const boost::property_tree::ptree &pt, const std::string state );
-   boost::shared_ptr<action> parse_script( const boost::property_tree::ptree &pt );
-   boost::shared_ptr<action> parse_log( const boost::property_tree::ptree &pt );
+   std::shared_ptr<transition> parse_transition( const boost::property_tree::ptree &pt, const std::string state );
+   std::shared_ptr<action> parse_script( const boost::property_tree::ptree &pt );
+   std::shared_ptr<action> parse_log( const boost::property_tree::ptree &pt );
    plist<action> parse_entry( const boost::property_tree::ptree &pt );
 
    void parse_datamodel( const boost::property_tree::ptree &pt );
@@ -111,5 +108,4 @@ protected:
    void parse_handlers( const boost::property_tree::ptree &pt );
 };
 
-#endif
-
+#endif // __SCXML_PARSER
