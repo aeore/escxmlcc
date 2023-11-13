@@ -22,10 +22,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES})
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
+option(WITH_TESTS "Build generator with tests" OFF)
 if (WITH_TESTS)
    add_subdirectory(test)
 endif()
 
+option(WITH_EXAMPLES "Build generator with examples" OFF)
 if (WITH_EXAMPLES)
    add_subdirectory(example)
 endif()

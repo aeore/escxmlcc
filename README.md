@@ -55,7 +55,7 @@ To build with options, use:
 ```bash
 mkdir build
 cd build
-cmake -D<OPTION>=TRUE -D<OTHER OPTION>=TRUE ..
+cmake -D<OPTION>=ON -D<OTHER OPTION>=ON ..
 make
 optional: sudo make install
 ```
