@@ -44,11 +44,11 @@ private:
 };
 
 #define DEFINE_TEST_CASE( cls, ... ) \
-class C##cls##AH: public C##cls##ActionHandlerDefault { __VA_ARGS__ };
+class C##cls##AH: public C##cls##FSM::ActionHandlerInterface { __VA_ARGS__ };
 
 #define STATE( cls, name ) \
-   virtual void state##name##Enter( C##cls##FSM::data_model& ) { TestSet::sequence.action( "state_"#name"::enter" ); } \
-   virtual void state##name##Exit( C##cls##FSM::data_model& ) { TestSet::sequence.action( "state_"#name"::exit" ); }
+   virtual void state##name##Enter( C##cls##FSM::data_model& ) override { TestSet::sequence.action( "state_"#name"::enter" ); } \
+   virtual void state##name##Exit( C##cls##FSM::data_model& ) override { TestSet::sequence.action( "state_"#name"::exit" ); }
 
 #define RUN_TEST_FSM( cls ) \
    C##cls##AH ah; \
@@ -56,7 +56,7 @@ class C##cls##AH: public C##cls##ActionHandlerDefault { __VA_ARGS__ };
    chart.init();
 
 #define ACTION( cls, name, ... ) \
-   virtual void on##name( C##cls##FSM::data_model&, ##__VA_ARGS__ ) { TestSet::sequence.action( "action_"#name ); }
+   virtual void on##name( C##cls##FSM::data_model&, ##__VA_ARGS__ ) override { TestSet::sequence.action( "action_"#name ); }
 /*
 class D{};
 DECLARE_EVENT(E, D, I);

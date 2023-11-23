@@ -19,7 +19,7 @@
 //todo fix this in releases
 
 #ifndef VER
-#define VER "0.7"
+#define VER "0.8"
 #endif
 #define STR_EXPAND(tok) #tok
 #define STR(tok) STR_EXPAND(tok)
