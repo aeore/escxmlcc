@@ -28,7 +28,6 @@
  */
 
 #include "cpp_output.h"
-#include "version.h"
 #include <iostream>
 #include <vector>
 #include <set>
@@ -38,14 +37,6 @@
  
 std::string cpp_output::classname() { 
    return "C" + UpperFirstLetter(sc.sc().name) + "FSM"; 
-}
-
-std::string cpp_output::getActionHandlerName() {
-   return "I" + UpperFirstLetter(sc.sc().name) + "ActionHandler"; 
-}
-
-std::string cpp_output::getActionHandlerDefaultName() { 
-   return "C" + UpperFirstLetter(sc.sc().name) + "ActionHandlerDefault"; 
 }
 
 std::string cpp_output::state_t() { 
@@ -74,23 +65,18 @@ void cpp_output::gen_transition_base() {
    for (int i = 0; i < max_targets; ++i) {
       out << ", class D" << i << " = no_state";
    }
-   out << "> class transition_actions" << std::endl;
-   out << tab << "{" << std::endl;
+   out << "> class transition_actions {" << std::endl;
    out << tab << "protected:" << std::endl;
    out << tab << tab << "void enter(data_model&) { /* default enter action */ }" << std::endl;
-   out << tab << tab << "bool condition(data_model&) { return true; } /* default condition action */" << std::endl;
    out << tab << "};" << std::endl;
    out << std::endl;
 
    // external transition
    out << tab << "// external transition" << std::endl;
-   out << tab << "template<int index, event E, class S, class D = no_state, transition_type T = external> class transition: public transition_actions<index, E, S, D>" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "template<int index, event E, class S, class D = no_state, transition_type T = external> class transition: public transition_actions<index, E, S, D> {" << std::endl;
    out << tab << "public:" << std::endl;
    // exit/enter is called here without parameter, which forces the action to always exit/enter at least current state
-   out << tab << tab << "state* operator()( S *s, D &d, " << classname() << " &sc )" << std::endl;
-   out << tab << tab << "{" << std::endl;
-   out << tab << tab << tab << "if( !transition_actions<index, E, S, D>::condition(sc.model) ) return 0;" << std::endl;
+   out << tab << tab << "state* operator()( S *s, D &d, " << classname() << " &sc ) {" << std::endl;
    if ( sc.using_parallel ) {
       out << tab << tab << tab << "s->exit_parallel( sc, s, &d );" << std::endl;
    }
@@ -109,12 +95,9 @@ void cpp_output::gen_transition_base() {
 
    // todo veryfy how these work at down transition
    out << tab << "// internal transition" << std::endl;
-   out << tab << "template<int index, event E, class S, class D> class transition<index, E, S, D, internal>: public transition_actions<index, E, S, D>" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "template<int index, event E, class S, class D> class transition<index, E, S, D, internal>: public transition_actions<index, E, S, D> {" << std::endl;
    out << tab << "public:" << std::endl;
-   out << tab << tab << "state* operator()( S *s, D &d, " << classname() << " &sc )" << std::endl; 
-   out << tab << tab << "{" << std::endl;
-   out << tab << tab << tab << "if ( !transition_actions<index, E, S, D>::condition(sc.model) ) return 0;" << std::endl;
+   out << tab << tab << "state* operator()( S *s, D &d, " << classname() << " &sc ) {" << std::endl; 
    if (sc.using_parallel) { 
       out << tab << tab << tab << "s->exit_parallel( sc, s, &d );" << std::endl;
    }
@@ -133,12 +116,9 @@ void cpp_output::gen_transition_base() {
 
    // transition without target
    out << tab << "// transition with no target" << std::endl;
-   out << tab << "template<int index, event E, class S> class transition<index, E, S, no_state>: public transition_actions<index, E, S, no_state>" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "template<int index, event E, class S> class transition<index, E, S, no_state>: public transition_actions<index, E, S, no_state> {" << std::endl;
    out << tab << "public:" << std::endl;
-   out << tab << tab << "S* operator()( S *s, " << classname() << " &sc )" << std::endl;
-   out << tab << tab << "{" << std::endl;
-   out << tab << tab << tab << "if ( !transition_actions<index, E, S, no_state>::condition(sc.model) ) return 0;" << std::endl;
+   out << tab << tab << "S* operator()( S *s, " << classname() << " &sc ) {" << std::endl;
    out << tab << tab << tab << "transition_actions<index, E, S, no_state>::enter( sc.model );" << std::endl;
    out << tab << tab << tab << "return s;" << std::endl;
    out << tab << tab << "}" << std::endl;
@@ -176,7 +156,7 @@ void cpp_output::gen_transition_base() {
 
       out << tab << tab << '{' << std::endl;
 
-      out << tab << tab << tab << "if(!transition_actions<E, S";
+      out << tab << tab << tab << "if (!transition_actions<E, S";
       for (int i = 0; i < sz; ++i) {
          out << ", D" << i;
       }
@@ -207,9 +187,8 @@ void cpp_output::gen_transition_base() {
 }
 
 void cpp_output::gen_state_actions_base() {
-   out << "public:" << std::endl;
-   out << tab << "template<class C> class " << state_actions_t() << std::endl;
-   out << tab << "{" << std::endl;
+   out << "private:" << std::endl;
+   out << tab << "template<class C> class " << state_actions_t() << " {" << std::endl;
    // enter/exit
    out << tab << "protected:" << std::endl;
    out << tab << tab << "void inline enter( data_model& ) { /* default enter action */ }" << std::endl;
@@ -219,10 +198,10 @@ void cpp_output::gen_state_actions_base() {
 }
 
 void cpp_output::gen_state_composite_base() {
-   out << tab << "template<class C, class P> class " << state_composite_t() << ": public P, public state_actions<C>" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "template<class C, class P> class " << state_composite_t() << ": public P, public state_actions<C> {" << std::endl;
 
    out << tab << tab << "virtual " << state_t() << "* initial( " << classname() << "& ) { return 0; }" << std::endl;
+   out << std::endl;
 
    // lca calculation
    out << tab << "public:" << std::endl;
@@ -368,7 +347,8 @@ void cpp_output::gen_state_parallel_base() {
 
 void cpp_output::gen_model_base() {
    out << "public:" << std::endl;
-   out << tab << "struct " << "data_model {" << std::endl;
+   out << tab << "class ActionHandlerInterface;" << std::endl;
+   out << tab << "struct data_model {" << std::endl;
    out << tab << tab << "friend class " << classname() << ";" << std::endl;
    const std::vector<std::pair<std::string, std::string> >& dm = sc.sc().datamodel;
 
@@ -390,9 +370,13 @@ void cpp_output::gen_model_base() {
       out << tab << tab << p.first << " " << p.second << ";" << std::endl;
    }
 
+   out << std::endl;
    out << tab << "private:" << std::endl;
-   out << tab << tab << "I" << UpperFirstLetter(sc.sc().name) + "ActionHandler* actionHandler;" << std::endl;
-   out << tab << "} model;" << std::endl;
+   out << tab << tab << "ActionHandlerInterface* actionHandler;" << std::endl;
+   out << tab << "};" << std::endl;
+   out << std::endl;
+   
+   gen_ahi_header();
 
    if ( dm.size() > 0 ) {
       out << std::endl << "public:" << std::endl;
@@ -400,10 +384,7 @@ void cpp_output::gen_model_base() {
    for( const auto& p: dm ) {
       std::string var_name = p.second;
       var_name[0] = toupper(var_name[0]);
-      out << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << "void set" << var_name << "( const " << p.first + "& value )" << std::endl;
-      out << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << "{" << std::endl;
+      out << tab << "void set" << var_name << "( const " << p.first + "& value ) {" << std::endl;
       out << tab << tab << "model." << p.second << " = value;" << std::endl;
       out << tab << "}" << std::endl;
    }
@@ -416,8 +397,7 @@ void cpp_output::gen_state_base() {
 
    // state actions class
    out << "public:" << std::endl;
-   out << tab << "class " << state_t() << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "class " << state_t() << " {" << std::endl;
    out << tab << "public:" << std::endl;
 
    // events
@@ -455,13 +435,14 @@ void cpp_output::gen_state_base() {
 
    out << tab << "};" << std::endl;
    out << std::endl;
-
+   out << "private:" << std::endl;
    if ( sc.using_parallel ) {
       out << tab << "typedef std::vector<" << state_t() << "*> cur_state_l;" << std::endl;
       out << tab << "cur_state_l cur_state;" << std::endl;
    } else {
       out << tab << state_t() << " *cur_state;" << std::endl;
    }
+   out << tab << "data_model model;" << std::endl;
    out << tab << "typedef " << state_t() << "* ( " << state_t() << "::*event )( " << classname() << "& );" << std::endl;
    out << std::endl;
 }
@@ -488,10 +469,8 @@ void cpp_output::gen_state(const scxml_parser::state &state) {
 
    out << tab << "class " << state_classname << ": public ";
    out << state_composite_t();
-   out << '<' << state_classname << ", " << parent << ">";
+   out << '<' << state_classname << ", " << parent << "> {";
    out << std::endl;
-
-   out << tab << "{" << std::endl;
 
    // there is an initial transition in this state
    if ( state.initial.size() ) {
@@ -555,33 +534,27 @@ void cpp_output::gen_state(const scxml_parser::state &state) {
    for ( std::map< std::string, std::vector<std::string> >::iterator it = mth.begin(); it != mth.end(); it ++ ) {
       std::vector<std::string>& v = it->second;
 
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) {" << std::endl;
-      out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-
+      out << tab << tab << "inline " << (isUnconditionalTransitions ? "virtual " : "") << state_t() << "* " << it->first << "( " << classname() << " &sc ) override {" << std::endl;
       for ( std::vector<std::string>::iterator i = v.begin(); i != v.end(); i++ ) {
-         out  << tab << tab << tab << *i << std::endl;
+         out << tab << tab << tab << *i << std::endl;
       }
-      if (v.size() > 0) {
+      if ( v.size() > 0 ) {
          out << tab << tab << tab << "else return 0;" << std::endl;
       }
       out << tab << tab << "}" << std::endl;
    }
 
    if ( !isAutotransitional && !isUnconditionalTransitions ) {
-      out << tab << tab << "virtual state* unconditional( " << classname() << "& ) { return 0; }" << std::endl;
+      out << tab << tab << "virtual state* unconditional( " << classname() << "& ) override { return 0; }" << std::endl;
    }
       
    out << tab << "} m_" << prefix << "state_" << state.id << ";" << std::endl;
-   out << std::endl;
 }
 
 void cpp_output::gen_sc() {
    const scxml_parser::state_list &states = sc.sc().states;
 
-   out << "class I" << UpperFirstLetter(sc.sc().name) + "ActionHandler;" << std::endl;
-   out << "class " << classname() << std::endl;
-   out << "{" << std::endl;
+   out << "class " << classname() << " {" << std::endl;
 
    gen_model_base();
    gen_state_base();
@@ -605,10 +578,7 @@ void cpp_output::gen_sc() {
       out << tab << '}' << std::endl;
    } else {
       out << "private:" << std::endl;
-      out << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << "bool dispatch_event( event e )" << std::endl;
-      out << tab << "// --------------------------------------------------------------------------" << std::endl;
-      out << tab << '{' << std::endl;
+      out << tab << "bool dispatch_event( const event e ) {" << std::endl;
       out << tab << tab << "state *next_state;" << std::endl;
       out << tab << tab << "if ( (next_state = (cur_state->*e)(*this)) ) cur_state = next_state;" << std::endl;
       out << tab << tab << "return next_state;" << std::endl;
@@ -616,53 +586,39 @@ void cpp_output::gen_sc() {
    }
    out << std::endl;
    out << "public:" << std::endl;
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << "void dispatch( event e )" << std::endl;
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "void dispatch( const event e ) {" << std::endl;
    out << tab << tab << "bool cont = dispatch_event( e );" << std::endl;
    out << tab << tab << "while ( cont ) {" << std::endl;
    out << tab << tab << tab << "if ( (cont = dispatch_event(&state::initial)) );" << std::endl;
    out << tab << tab << tab << "else if ( (cont = dispatch_event(&state::unconditional)) );" << std::endl;
-   //out << tab << tab << tab << "else if (event_queue.size()) cont = dispatch_event(event_queue.front()), event_queue.pop();" << std::endl;
    out << tab << tab << tab << "else break;" << std::endl;
    out << tab << tab << "}" << std::endl;
    out << tab << "}" << std::endl;
    out << std::endl;
 
    // constructor
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << classname() << "( " << "I" << UpperFirstLetter(sc.sc().name) + "ActionHandler* pActionHandler" << " )";
+   out << tab << classname() << "( " << "ActionHandlerInterface* pActionHandler" << " )";
    if ( !sc.using_parallel ) {
-      out << " : cur_state( &m_scxml )";
+      out << ": cur_state( &m_scxml ), model() {";
    }
    out << std::endl;
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
 
-   out << tab << "{" << std::endl;
    if(sc.using_parallel) out << tab << tab << "cur_state.push_back(&m_scxml);" << std::endl;
    out << tab << tab << "model.actionHandler = pActionHandler;" << std::endl;
-   // out << tab << tab << "model.user = user;" << std::endl;
-   // out << tab << tab << "dispatch(&state::initial);" << std::endl;
    out << tab << "}" << std::endl;
    out << std::endl;
 
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << "void init( void )" << std::endl;
-   out << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "void init( void ) {" << std::endl;
    out << tab << tab << "dispatch( &state::initial );" << std::endl;
    out << tab << "}" << std::endl;
    out << std::endl;
 
+   out << "private: " << std::endl;
    //m_scxml
-   out << tab << "class scxml : public composite<scxml, state>" << std::endl;
-   out << tab << "{" << std::endl;
+   out << tab << "class scxml : public composite<scxml, state> {" << std::endl;
 
    const int sz = sc.sc().initial.size();
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
-   out << tab << tab << state_t() << "* initial( " << classname() << "&sc ) {" << std::endl;
-   out << tab << tab << "// --------------------------------------------------------------------------" << std::endl;
+   out << tab << tab << "inline " << state_t() << "* initial( " << classname() << "& sc ) override {" << std::endl;
    out << tab << tab << tab << "return transition";
    if(sz > 1) out << sz;
    out << "<0, &state::initial, scxml";
@@ -673,14 +629,16 @@ void cpp_output::gen_sc() {
    for (int i = 0; i < sz; ++i) {
       out << ", sc.m_state_" << sc.sc().initial[i];
    }
-   out << ", sc ); }" << std::endl;
+   out << ", sc );" << std::endl;
+   out << tab << tab << "}" << std::endl;
 
-   out << tab << tab << "} m_scxml;" << std::endl;
+   out << tab << "} m_scxml;" << std::endl;
    out << std::endl;
 
    // states
-   for (scxml_parser::state_list::const_iterator s = states.begin(); s != states.end(); ++s) {
-      gen_state(*s->get());
+   for (auto& state: states) {
+      gen_state( *state.get() );
+      out << std::endl;
    }
 
    out << "};" << std::endl << std::endl;
@@ -720,9 +678,11 @@ void cpp_output::gen() {
    if (sc.using_parallel) {
       std::cerr << "warning: parallel support is not fully implemented/tested" << std::endl;
    }
+   
+   const std::string guardDefine = "AUTOFSM_" + str_toupper(sc.sc().name) + "_HPP";
 
-   out << "#ifndef AUTOFSM_" << str_toupper(sc.sc().name) << "_HPP" << std::endl;
-   out << "#define AUTOFSM_" << str_toupper(sc.sc().name) << "_HPP" << std::endl;
+   out << "#ifndef " << guardDefine << std::endl;
+   out << "#define " << guardDefine << std::endl;
    out << std::endl;
 
    out << "/*" << std::endl;
@@ -736,11 +696,6 @@ void cpp_output::gen() {
    out << " *          an extended version of original scxmlcc compiler written by Jan Pedersen. For more" << std::endl;
    out << " *          information see project website https://github.com/aeore/escxmlcc" << std::endl;
    out << " */" << std::endl;
-   out << std::endl;
-
-   out << "// --------------------------------------------------------------------------" << std::endl;
-   out << "// Includes" << std::endl;
-   out << "// --------------------------------------------------------------------------" << std::endl;
    out << std::endl;
 
    out << "#include <typeinfo>" << std::endl;
@@ -766,109 +721,59 @@ void cpp_output::gen() {
 
    trim();
    gen_sc();
-   gen_ahi_header();
-   gen_ahd_header();
-
-   out << std::endl;
-
    gen_template_calls();
   
    // end of include guard
    out << "/* ************************************************************************ */" << std::endl;
-   out << "#endif // AUTOFSM_" << str_toupper(sc.sc().name) << "_HPP" << std::endl;
+   out << "#endif // " << guardDefine << std::endl;
 }
 
 void cpp_output::gen_ahi_header() {
-   out << "class " << getActionHandlerName() << std::endl;
-   out << "{" << std::endl;
-   out << "public:" << std::endl;
-   out << tab << "/* state handlers */" << std::endl;
+   out << tab << "class ActionHandlerInterface {" << std::endl;
+   out << tab << "public:" << std::endl;
+   out << tab << tab << "// state handlers" << std::endl;
 
    const scxml_parser::state_list &states = sc.sc().states;
    for (scxml_parser::state_list::const_iterator s = states.begin(); s != states.end(); ++s) {
       scxml_parser::state state = *s->get();
       std::string stateName = UpperFirstLetter(state.id);
 
-      out << tab << "virtual void state" << stateName << "Enter( " << classname() << "::data_model &m ) = 0;" << std::endl;
-      out << tab << "virtual void state" << stateName << "Exit( " << classname() << "::data_model &m ) = 0;" << std::endl;
+      out << tab << tab << "virtual void state" << stateName << "Enter( " << classname() << "::data_model& ) { /* default */ }" << std::endl;
+      out << tab << tab << "virtual void state" << stateName << "Exit( " << classname() << "::data_model& ) { /* default */ }" << std::endl;
    }
-
    out << std::endl;
-   out << tab << "/* transition handlers */" << std::endl;
-   const std::vector<scxml_parser::transition_action>& transitionHandlers = sc.sc().transition_actions;
-   for ( std::vector<scxml_parser::transition_action>::const_iterator it = transitionHandlers.begin(); it != transitionHandlers.end(); ++it ) {
-      const scxml_parser::transition_action& t_action = *it;
 
-      std::string params = "";
-      for ( std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it ) {
-         scxml_parser::param p = *arg_it;
-         if ( params != "") {
-            params += ", ";
+   const std::vector<scxml_parser::transition_action>& transitionHandlers = sc.sc().transition_actions;
+   if ( transitionHandlers.size() > 0 ) {
+      out << tab << tab << "// transition handlers" << std::endl;
+      for ( std::vector<scxml_parser::transition_action>::const_iterator it = transitionHandlers.begin(); it != transitionHandlers.end(); ++it ) {
+         const scxml_parser::transition_action& t_action = *it;
+
+         std::string params = "";
+         for ( std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it ) {
+            scxml_parser::param p = *arg_it;
+            if ( params != "" ) params += ", ";
+            params += p.type + " " + p.name;
          }
-         params += p.type + " " + p.name;
-      }
-      if ( params != "" ) {
-         params = ", " + params;
-      }
+         if ( params != "" ) {
+            params = ", " + params;
+         }
 
-      out << tab << "virtual void on" << UpperFirstLetter(t_action.name) << "( " << classname() << "::data_model& m" << params << " ) = 0;" << std::endl;
+         out << tab << tab << "virtual void on" << UpperFirstLetter(t_action.name) << "( " << classname() << "::data_model&" << params << " ) {" << std::endl;
+         for (std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it) {
+            scxml_parser::param p = *arg_it;
+            out << tab << tab << tab << "(void)" + p.name + ";" << std::endl;
+         }
+         out << tab << tab << tab << "/* default */" << std::endl;
+         out << tab << tab << "}" << std::endl;
+      }
+      out << std::endl;
    }
 
-   out << std::endl;
-   out << "protected:" << std::endl;
-   out << tab << "virtual ~" << getActionHandlerName() << "( void ) { /* nop */ }" << std::endl;
+   out << tab << "protected:" << std::endl;
+   out << tab << tab << "virtual ~ActionHandlerInterface( void ) { /* nop */ }" << std::endl;
 
-   out << "};" << std::endl;
-   out << std::endl;
-}
-
-void cpp_output::gen_ahd_header() {
-   out << "class " << getActionHandlerDefaultName() << ": public " << getActionHandlerName() << std::endl;
-   out << "{" << std::endl;
-   out << "public:" << std::endl;
-   out << tab << "/* state handlers */" << std::endl;
-
-   const scxml_parser::state_list &states = sc.sc().states;
-   for (scxml_parser::state_list::const_iterator s = states.begin(); s != states.end(); ++s) {
-      scxml_parser::state state = *s->get();
-      std::string stateName = UpperFirstLetter(state.id);
-
-      out << tab << "virtual void state" << stateName << "Enter( " << classname() << "::data_model &m ) { (void)m; /* default */ }" << std::endl;
-      out << tab << "virtual void state" << stateName << "Exit( " << classname() << "::data_model &m ) { (void)m; /* default */ }" << std::endl;
-   }
-
-   out << std::endl;
-   out << tab << "/* transition handlers */" << std::endl;
-   const std::vector<scxml_parser::transition_action>& transitionHandlers = sc.sc().transition_actions;
-   for ( std::vector<scxml_parser::transition_action>::const_iterator it = transitionHandlers.begin(); it != transitionHandlers.end(); ++it ) {
-      const scxml_parser::transition_action& t_action = *it;
-
-      std::string params = "";
-      for ( std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it ) {
-         scxml_parser::param p = *arg_it;
-         if ( params != "") params += ", ";
-         params += p.type + " " + p.name;
-      }
-      if ( params != "" ) {
-         params = ", " + params;
-      }
-
-      out << tab << "virtual void on" << UpperFirstLetter(t_action.name) << "( " << classname() << "::data_model& m" << params << " ) {" << std::endl;
-      out << tab << tab << "(void)m;" << std::endl;
-      for (std::vector<scxml_parser::param>::const_iterator arg_it = t_action.params.begin(); arg_it != t_action.params.end(); ++arg_it) {
-         scxml_parser::param p = *arg_it;
-         out << tab << tab << "(void)" + p.name + ";" << std::endl;
-      }
-
-      out << tab << "}" << std::endl;
-   }
-
-   out << std::endl;
-   out << "protected:" << std::endl;
-   out << tab << "virtual ~" << getActionHandlerDefaultName() << "( void ) { /* nop */ }" << std::endl;
-
-   out << "};" << std::endl;
-   out << std::endl;
+   out << tab << "};" << std::endl;
 }
 
 std::string getMethodPartFromExecutableContent( std::string& content ) {
@@ -898,7 +803,7 @@ void parseExecutableMethodCall( std::string content, std::string& method, std::s
    std::string::size_type last_quote = content.rfind( ')' );
 
    const std::string subst = content.substr( first_quote + 1, last_quote - first_quote - 1  );
-   params =  trim( subst );
+   params = trim( subst );
 }
 
 std::vector<std::string> split_string(const std::string& str, const std::string& delimiter) {
@@ -923,17 +828,11 @@ void cpp_output:: gen_template_calls() {
    for (scxml_parser::state_list::const_iterator s = states.begin(); s != states.end(); ++s) {
       scxml_parser::state state = *s->get();
 
-      out << "// --------------------------------------------------------------------------" << std::endl;
-      out << "template<> inline void " << classname() << "::state_actions<" << classname() << "::" << "state_" << state.id << ">::enter( " << classname() << "::data_model &m )" << std::endl;
-      out << "// --------------------------------------------------------------------------" << std::endl;
-      out << "{" << std::endl;
+      out << "template<> inline void " << classname() << "::state_actions<" << classname() << "::" << "state_" << state.id << ">::enter( " << classname() << "::data_model &m ) {" << std::endl;
       out << tab << "m.actionHandler->state" << UpperFirstLetter(state.id) << "Enter( m );" << std::endl;
       out << "}" << std::endl;
       out << std::endl;
-      out << "// --------------------------------------------------------------------------" << std::endl;
-      out << "template<> inline void " << classname() << "::state_actions<" << classname() << "::" << "state_" << state.id << ">::exit( " << classname() << "::data_model &m )" << std::endl;
-      out << "// --------------------------------------------------------------------------" << std::endl;
-      out << "{" << std::endl;
+      out << "template<> inline void " << classname() << "::state_actions<" << classname() << "::" << "state_" << state.id << ">::exit( " << classname() << "::data_model &m ) {" << std::endl;
       out << tab << "m.actionHandler->state" << UpperFirstLetter(state.id) << "Exit( m );" << std::endl;
       out << "}" << std::endl;
       out << std::endl;
@@ -945,11 +844,8 @@ void cpp_output:: gen_template_calls() {
             std::string params;
             std::vector<std::string> exe = split_string(it->get()->executable_content, "\n");
 
-            out << "// --------------------------------------------------------------------------" << std::endl;
             out << "template<> inline void " << classname() << "::transition_actions<" << it->get()->index << ", &" << classname() << "::" << it->get()->event_fmt << ", " << classname() << "::" << it->get()->source_fmt << ", " <<
-               classname() << "::" << it->get()->dest_fmt << ">::enter(" << classname() << "::data_model& m )" << std::endl;
-            out << "// --------------------------------------------------------------------------" << std::endl;
-            out << "{" << std::endl;
+               classname() << "::" << it->get()->dest_fmt << ">::enter(" << classname() << "::data_model& m ) {" << std::endl;
             for (std::string m : exe) {
                parseExecutableMethodCall(m, method, params);
                out << tab << "m.actionHandler->on" << UpperFirstLetter(method) << "( m";
