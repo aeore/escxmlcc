@@ -24,7 +24,6 @@
 struct options {
    boost::filesystem::path input;
    boost::filesystem::path output;
-   boost::filesystem::path output_cpp;
 };
 
 #endif

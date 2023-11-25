@@ -42,15 +42,18 @@ void scxmlcc( const options &opt ) {
    std::replace_if( sc_name.begin(), sc_name.end(), c_pred, '_' );
 
    scxml_parser sc( sc_name.c_str(), pt );
-
    std::ofstream ofs( opt.output.c_str() );
-   cpp_output out( ofs, sc, opt );
-   out.gen();
+   if (ofs) {
+      cpp_output out( ofs, sc, opt );
+      out.gen();
+   } else {
+      throw std::runtime_error( std::string("Can't write generated results using path '") + opt.output.string() + "'. Specified location can't be opened" );
+   }
 }
 
 int main(int argc, char *argv[]) {
    using namespace boost::program_options;
-   
+
    options_description desc( "Options" );
    desc.add_options()
       ( "help,h", "This help message" )
@@ -79,16 +82,11 @@ int main(int argc, char *argv[]) {
    if ( vm.count("output") ) {
       opt.output = vm["output"].as<std::string>();
       opt.output = opt.output / boost::filesystem::path( opt.input ).stem().replace_extension(".hpp");
-
-      opt.output_cpp = vm["output"].as<std::string>();
-      opt.output_cpp = opt.output_cpp / boost::filesystem::path( opt.input ).stem().replace_extension(".cpp");
    }
 
    if ( !opt.input.empty() && opt.output.empty() ) {
       opt.output = opt.input;
       opt.output.replace_extension( ".hpp" );
-      opt.output_cpp = opt.input;
-      opt.output_cpp.replace_extension( ".cpp" );
    }
 
    if ( vm.count("version") ) {
@@ -127,6 +125,12 @@ int main(int argc, char *argv[]) {
 
    try {
       scxmlcc( opt );
+   } catch (const boost::property_tree::xml_parser::xml_parser_error& e) {
+      std::cerr << "Parsing error: " << e.message() << std::endl;
+      return 1;
+   } catch ( const std::runtime_error& e ) {
+      std::cerr << "Error: " << e.what() << std::endl;
+      return 1;
    } catch (...) {
       std::cerr << "Unandled error!" << std::endl;
       return 1;
